@@ -1,107 +1,269 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Sua Pizzaria</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin • Bella Massa</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+  background: #f5f5f5;
+}
+
+header {
+  background: #b11212;
+  color: #fff;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.container {
+  max-width: 760px;
+  margin: auto;
+  padding: 16px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.1);
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-top: 4px;
+}
+
+button {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn { background: #25d366; color: #fff; }
+.btn-red { background: #b11212; color: #fff; }
+.btn-outline {
+  background: #fff;
+  border: 2px solid #b11212;
+  color: #b11212;
+}
+
+.hidden { display: none; }
+</style>
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="brand">
-      <h1>Admin — Sua Pizzaria</h1>
-    </div>
-    <nav class="header-actions">
-      <a href="index.html" class="btn">Ver Site</a>
-    </nav>
-  </header>
 
-  <main class="container admin-container">
-    <div id="login-panel" class="card">
-      <h2>Login</h2>
-      <label>
-        Email
-        <input id="login-email" type="email" value="admin@pizzaria.local" />
-      </label>
-      <label>
-        Senha
-        <input id="login-pass" type="password" value="admin123" />
-      </label>
-      <div>
-        <button id="btn-login" class="btn">Entrar</button>
-      </div>
-      <small>Credenciais de exemplo acima. Altere no código se quiser.</small>
-    </div>
+<header>
+  <strong>🔐 Admin • Bella Massa</strong>
+  <a href="index.html">Ver site</a>
+</header>
 
-    <div id="admin-panel" class="hidden">
-      <section class="card">
-        <h2>Dados da Pizzaria</h2>
-        <label>
-          Nome da loja
-          <input id="admin-name" />
-        </label>
-        <label>
-          Telefone (tel)
-          <input id="admin-phone" />
-        </label>
-        <div>
-          <button id="save-store" class="btn">Salvar</button>
-        </div>
-      </section>
+<div class="container">
 
-      <section class="card">
-        <h2>Categorias</h2>
-        <div id="categories-admin"></div>
-        <div class="form-inline">
-          <input id="new-category-name" placeholder="Nova categoria" />
-          <button id="add-category" class="btn">Adicionar</button>
-        </div>
-      </section>
+<!-- LOGIN -->
+<div id="login" class="card">
+  <h2>Login</h2>
+  <input id="email" value="admin@bellamassa.com">
+  <input id="pass" type="password" value="123456">
+  <button class="btn" onclick="login()">Entrar</button>
+</div>
 
-      <section class="card">
-        <h2>Produtos</h2>
-        <div id="products-admin"></div>
-        <button id="add-product-btn" class="btn">Adicionar Produto</button>
-      </section>
+<!-- ADMIN -->
+<div id="admin" class="hidden">
 
-      <section class="card">
-        <h2>Feedbacks</h2>
-        <div id="feedbacks-admin"></div>
-        <div class="form-inline">
-          <input id="new-feedback-name" placeholder="Nome cliente" />
-          <input id="new-feedback-text" placeholder="Comentário" />
-          <button id="add-feedback" class="btn">Adicionar feedback</button>
-        </div>
-      </section>
+<!-- DADOS -->
+<div class="card">
+  <h2>🏪 Dados da Loja</h2>
+  <input id="storeName" placeholder="Nome da pizzaria">
+  <input id="storePhone" placeholder="WhatsApp">
+  <button class="btn-red" onclick="saveStore()">Salvar</button>
+</div>
 
-      <section class="card">
-        <h2>Importar / Exportar</h2>
-        <div class="form-inline">
-          <button id="export-json" class="btn">Exportar JSON</button>
-          <input id="import-file" type="file" accept="application/json" />
-        </div>
-      </section>
+<!-- CATEGORIAS -->
+<div class="card">
+  <h2>🗂 Categorias</h2>
+  <input id="catName" placeholder="Nova categoria">
+  <button class="btn-outline" onclick="addCategory()">Adicionar</button>
+  <div id="catList"></div>
+</div>
 
-      <div style="text-align:right; margin-top:12px;">
-        <button id="btn-logout" class="btn ghost">Sair</button>
-      </div>
-    </div>
-  </main>
+<!-- PRODUTOS -->
+<div class="card">
+  <h2>🍕 Produtos</h2>
 
-  <!-- modal produto edição -->
-  <div id="product-edit-modal" class="modal hidden">
-    <div class="modal-content">
-      <button class="modal-close" id="edit-modal-close">&times;</button>
-      <div class="product-edit-body" id="product-edit-body"></div>
-    </div>
-  </div>
+  <input id="prodName" placeholder="Nome do produto">
+  <input id="prodDesc" placeholder="Descrição">
+  <input id="prodPrice" placeholder="Preço">
+  <select id="prodCat"></select>
+  <input type="file" id="prodImage" accept="image/*">
 
-  <script src="app.js"></script>
-  <script>
-    // inicializa comportamentos admin
-    document.addEventListener('DOMContentLoaded', () => {
-      window.app.initAdmin();
+  <label>
+    <input type="checkbox" id="prodBest"> ⭐ Mais pedido
+  </label>
+
+  <button class="btn" onclick="addProduct()">Adicionar produto</button>
+  <div id="productList"></div>
+</div>
+
+<!-- PROMO -->
+<div class="card">
+  <h2>🔥 Promoção do Dia</h2>
+  <input id="promoDesc" placeholder="Descrição">
+  <input id="promoPrice" placeholder="Preço">
+  <input type="file" id="promoImage" accept="image/*">
+  <input id="promoTime" placeholder="Duração (min)">
+  <button class="btn" onclick="savePromo()">Salvar promoção</button>
+</div>
+
+<!-- BACKUP -->
+<div class="card">
+  <h2>📦 Backup</h2>
+  <button class="btn-outline" onclick="exportJSON()">Exportar JSON</button>
+  <input type="file" id="importFile" accept="application/json">
+  <button class="btn-outline" onclick="importJSON()">Importar JSON</button>
+</div>
+
+<button class="btn-red" onclick="logout()">Sair</button>
+
+</div>
+</div>
+
+<script>
+const KEY = "pizzaria-data";
+const DB = () => JSON.parse(localStorage.getItem(KEY) || "{}");
+const SAVE = d => localStorage.setItem(KEY, JSON.stringify(d));
+
+function login(){
+  loginDiv.classList.add("hidden");
+  admin.classList.remove("hidden");
+  load();
+}
+
+function logout(){ location.reload(); }
+
+function load(){
+  const d = DB();
+  storeName.value = d.store?.name || "";
+  storePhone.value = d.store?.phone || "";
+  renderCategories();
+  renderProducts();
+}
+
+function saveStore(){
+  const d = DB();
+  d.store = { name: storeName.value, phone: storePhone.value };
+  SAVE(d);
+  alert("Dados salvos");
+}
+
+function addCategory(){
+  const d = DB();
+  d.categories = d.categories || [];
+  d.categories.push(catName.value);
+  SAVE(d);
+  catName.value="";
+  renderCategories();
+}
+
+function renderCategories(){
+  const d = DB();
+  catList.innerHTML="";
+  prodCat.innerHTML="";
+  (d.categories||[]).forEach(c=>{
+    catList.innerHTML+=`<p>${c}</p>`;
+    prodCat.innerHTML+=`<option>${c}</option>`;
+  });
+}
+
+function addProduct(){
+  const d = DB();
+  d.products = d.products || [];
+  const reader = new FileReader();
+  reader.onload=()=>{
+    d.products.push({
+      id:Date.now(),
+      name:prodName.value,
+      desc:prodDesc.value,
+      price:parseFloat(prodPrice.value),
+      category:prodCat.value,
+      image:reader.result,
+      best:prodBest.checked
     });
-  </script>
+    SAVE(d);
+    renderProducts();
+  };
+  reader.readAsDataURL(prodImage.files[0]);
+}
+
+function renderProducts(){
+  const d = DB();
+  productList.innerHTML="";
+  (d.products||[]).forEach(p=>{
+    productList.innerHTML+=`<p>${p.name} - R$ ${p.price}</p>`;
+  });
+}
+
+function savePromo(){
+  const d = DB();
+  const reader = new FileReader();
+  reader.onload=()=>{
+    d.promo={
+      active:true,
+      description:promoDesc.value,
+      price:parseFloat(promoPrice.value),
+      image:reader.result,
+      minutes:parseInt(promoTime.value),
+      start:Date.now()
+    };
+    SAVE(d);
+    alert("Promo salva");
+  };
+  reader.readAsDataURL(promoImage.files[0]);
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(DB(),null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="backup.json";
+  a.click();
+}
+
+function importJSON(){
+  const f=importFile.files[0];
+  const r=new FileReader();
+  r.onload=()=>{localStorage.setItem(KEY,r.result);location.reload();}
+  r.readAsText(f);
+}
+
+const loginDiv=document.getElementById("login");
+const admin=document.getElementById("admin");
+</script>
+
 </body>
 </html>
