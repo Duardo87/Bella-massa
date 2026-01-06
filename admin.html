@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Sua Pizzaria</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <h1>Admin — Sua Pizzaria</h1>
+    </div>
+    <nav class="header-actions">
+      <a href="index.html" class="btn">Ver Site</a>
+    </nav>
+  </header>
+
+  <main class="container admin-container">
+    <div id="login-panel" class="card">
+      <h2>Login</h2>
+      <label>
+        Email
+        <input id="login-email" type="email" value="admin@pizzaria.local" />
+      </label>
+      <label>
+        Senha
+        <input id="login-pass" type="password" value="admin123" />
+      </label>
+      <div>
+        <button id="btn-login" class="btn">Entrar</button>
+      </div>
+      <small>Credenciais de exemplo acima. Altere no código se quiser.</small>
+    </div>
+
+    <div id="admin-panel" class="hidden">
+      <section class="card">
+        <h2>Dados da Pizzaria</h2>
+        <label>
+          Nome da loja
+          <input id="admin-name" />
+        </label>
+        <label>
+          Telefone (tel)
+          <input id="admin-phone" />
+        </label>
+        <div>
+          <button id="save-store" class="btn">Salvar</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Categorias</h2>
+        <div id="categories-admin"></div>
+        <div class="form-inline">
+          <input id="new-category-name" placeholder="Nova categoria" />
+          <button id="add-category" class="btn">Adicionar</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Produtos</h2>
+        <div id="products-admin"></div>
+        <button id="add-product-btn" class="btn">Adicionar Produto</button>
+      </section>
+
+      <section class="card">
+        <h2>Feedbacks</h2>
+        <div id="feedbacks-admin"></div>
+        <div class="form-inline">
+          <input id="new-feedback-name" placeholder="Nome cliente" />
+          <input id="new-feedback-text" placeholder="Comentário" />
+          <button id="add-feedback" class="btn">Adicionar feedback</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Importar / Exportar</h2>
+        <div class="form-inline">
+          <button id="export-json" class="btn">Exportar JSON</button>
+          <input id="import-file" type="file" accept="application/json" />
+        </div>
+      </section>
+
+      <div style="text-align:right; margin-top:12px;">
+        <button id="btn-logout" class="btn ghost">Sair</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- modal produto edição -->
+  <div id="product-edit-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" id="edit-modal-close">&times;</button>
+      <div class="product-edit-body" id="product-edit-body"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // inicializa comportamentos admin
+    document.addEventListener('DOMContentLoaded', () => {
+      window.app.initAdmin();
+    });
+  </script>
+</body>
+</html>
