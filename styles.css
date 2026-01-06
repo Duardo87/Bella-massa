@@ -3,6 +3,7 @@
 ===================================================== */
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 :root {
@@ -27,7 +28,7 @@ body {
 }
 
 /* =====================================================
-   DARK MODE PREMIUM
+   DARK MODE
 ===================================================== */
 body.dark {
   --bg: #121212;
@@ -41,7 +42,7 @@ body.dark .site-header {
 }
 
 /* =====================================================
-   HEADER (APP STYLE)
+   HEADER
 ===================================================== */
 .site-header {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
@@ -53,20 +54,8 @@ body.dark .site-header {
   box-shadow: 0 4px 12px rgba(0,0,0,.25);
 }
 
-.site-header h1 {
-  margin: 0;
-  font-size: 22px;
-}
-
-.site-header a {
-  color: #fff;
-  font-size: 14px;
-  text-decoration: none;
-  opacity: .95;
-}
-
 /* =====================================================
-   CATEGORIAS (ESTILO iFOOD)
+   CATEGORIAS
 ===================================================== */
 .categories {
   display: flex;
@@ -74,30 +63,26 @@ body.dark .site-header {
   padding: 12px;
   overflow-x: auto;
   background: var(--card);
-  border-bottom: 1px solid rgba(0,0,0,.05);
 }
 
 .categories button {
-  background: transparent;
   border: 2px solid var(--primary);
+  background: transparent;
   color: var(--primary);
   padding: 10px 18px;
   border-radius: 999px;
   font-weight: 700;
   cursor: pointer;
-  transition: all .2s ease;
   white-space: nowrap;
 }
 
-.categories button.active,
-.categories button:hover {
+.categories button.active {
   background: var(--primary);
   color: #fff;
-  transform: scale(1.05);
 }
 
 /* =====================================================
-   PRODUTOS (CARDS PREMIUM)
+   PRODUTOS
 ===================================================== */
 .products-grid {
   display: grid;
@@ -111,58 +96,11 @@ body.dark .site-header {
   border-radius: var(--radius);
   padding: 14px;
   box-shadow: var(--shadow-soft);
-  animation: fadeUp .4s ease;
   position: relative;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-strong);
-}
-
-.product-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 14px;
-}
-
-.product-card h3 {
-  margin: 10px 0 4px;
-}
-
-.product-card p {
-  margin: 0;
-  font-size: 14px;
-  color: var(--muted);
-}
-
-.price {
-  font-size: 22px;
-  font-weight: bold;
-  color: var(--primary);
-  margin: 10px 0;
 }
 
 /* =====================================================
-   SELO MAIS PEDIDO
-===================================================== */
-.badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: gold;
-  color: #000;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,.25);
-}
-
-/* =====================================================
-   BOTÕES PREMIUM
+   BOTÕES (CLICÁVEIS NO IOS)
 ===================================================== */
 .btn {
   width: 100%;
@@ -172,12 +110,7 @@ body.dark .site-header {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-
-.btn:hover {
-  transform: scale(1.04);
-  box-shadow: var(--shadow-soft);
+  touch-action: manipulation;
 }
 
 .btn-green {
@@ -191,7 +124,7 @@ body.dark .site-header {
 }
 
 /* =====================================================
-   MODAIS (PROMO + ADICIONAIS)
+   MODAL / OVERLAY (🔥 PARTE CRÍTICA)
 ===================================================== */
 .promo-overlay {
   position: fixed;
@@ -200,7 +133,8 @@ body.dark .site-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: 9999;
+  pointer-events: auto;
 }
 
 .promo-card {
@@ -209,47 +143,28 @@ body.dark .site-header {
   padding: 16px;
   width: 92%;
   max-width: 360px;
-  animation: fadeUp .4s ease;
+  pointer-events: auto;
 }
 
-.promo-card img {
-  width: 100%;
-  border-radius: 16px;
-  margin-bottom: 10px;
+/* GARANTE QUE BOTÕES FUNCIONEM */
+.promo-card button {
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
-/* ===== ADICIONAIS ===== */
+/* =====================================================
+   ADICIONAIS
+===================================================== */
 .extra-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   padding: 12px;
   border-radius: 12px;
-  background: rgba(0,0,0,.04);
-  margin-bottom: 8px;
-  cursor: pointer;
-}
-
-body.dark .extra-item {
-  background: rgba(255,255,255,.08);
-}
-
-.extra-item input {
-  transform: scale(1.3);
+  background: rgba(0,0,0,.05);
 }
 
 /* =====================================================
-   CONTADOR PROMO (ANIMADO)
-===================================================== */
-#promo-timer {
-  margin: 10px 0;
-  font-weight: bold;
-  color: var(--primary);
-  animation: pulse 1s infinite;
-}
-
-/* =====================================================
-   CARRINHO (RESUMO FINAL)
+   CARRINHO
 ===================================================== */
 .cart {
   position: fixed;
@@ -259,17 +174,7 @@ body.dark .extra-item {
   border-radius: var(--radius);
   padding: 14px;
   width: 260px;
-  box-shadow: var(--shadow-strong);
   z-index: 999;
-  animation: fadeUp .3s ease;
-}
-
-.combo-suggestion {
-  margin: 8px 0;
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(255,193,7,.18);
-  font-size: 14px;
 }
 
 /* =====================================================
@@ -284,48 +189,16 @@ body.dark .extra-item {
   padding: 16px 22px;
   border-radius: 999px;
   font-weight: bold;
-  font-size: 16px;
   border: none;
-  box-shadow: var(--shadow-strong);
-  z-index: 1000;
-  animation: pulse 2s infinite;
+  z-index: 10000;
+  touch-action: manipulation;
 }
 
 /* =====================================================
-   ADMIN BASE
-===================================================== */
-.admin-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow-soft);
-}
-
-/* =====================================================
-   UTILIDADES
+   UTIL
 ===================================================== */
 .hidden {
   display: none;
-}
-
-/* =====================================================
-   ANIMAÇÕES
-===================================================== */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0% { opacity: 1 }
-  50% { opacity: .5 }
-  100% { opacity: 1 }
 }
 
 /* =====================================================

@@ -25,26 +25,26 @@ function renderPublic() {
   applyTheme();
   renderHeader();
   renderCategories();
-  renderPromo(); // 🔥 PROMO AO ENTRAR
+  renderPromo(); // 🔥 promo sempre ao entrar
 }
 
 // ==================================================
 // HEADER
 // ==================================================
 function renderHeader() {
-  document.getElementById("store-name").innerText = data.store.name;
+  if (!data.store) return;
+  document.getElementById("store-name").innerText = data.store.name || "";
   document.getElementById("store-phone").href =
-    "https://wa.me/" + data.store.phone;
+    "https://wa.me/" + (data.store.phone || "");
 }
 
 // ==================================================
-// TEMA (AUTO / DARK / LIGHT)
+// TEMA
 // ==================================================
 function applyTheme() {
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const theme =
     data.theme === "auto" ? (prefersDark ? "dark" : "light") : data.theme;
-
   document.body.classList.toggle("dark", theme === "dark");
 }
 
@@ -52,6 +52,8 @@ function applyTheme() {
 // CATEGORIAS (ESTILO iFOOD)
 // ==================================================
 function renderCategories() {
+  if (!data.products.length) return;
+
   const categories = [...new Set(data.products.map(p => p.category))];
   const nav = document.getElementById("categories");
   nav.innerHTML = "";
@@ -61,18 +63,18 @@ function renderCategories() {
     btn.textContent = cat;
     if (index === 0) btn.classList.add("active");
 
-    btn.onclick = () => {
+    btn.addEventListener("click", () => {
       document
         .querySelectorAll(".categories button")
         .forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       renderProducts(cat);
-    };
+    });
 
     nav.appendChild(btn);
   });
 
-  if (categories.length) renderProducts(categories[0]);
+  renderProducts(categories[0]);
 }
 
 // ==================================================
@@ -88,9 +90,9 @@ function renderProducts(category) {
       grid.innerHTML += `
         <div class="product-card">
           ${p.best ? `<span class="badge">⭐ Mais pedido</span>` : ""}
-          <img src="${p.image}">
+          <img src="${p.image}" alt="${p.name}">
           <h3>${p.name}</h3>
-          <p>${p.desc}</p>
+          <p>${p.desc || ""}</p>
           <div class="price">R$ ${p.price.toFixed(2)}</div>
           <button class="btn btn-green" onclick="openExtras(${p.id})">
             Adicionar
@@ -101,7 +103,7 @@ function renderProducts(category) {
 }
 
 // ==================================================
-// MODAL DE ADICIONAIS (APÓS ESCOLHER SABOR)
+// MODAL DE ADICIONAIS
 // ==================================================
 function openExtras(id) {
   selectedProduct = data.products.find(p => p.id === id);
@@ -109,7 +111,7 @@ function openExtras(id) {
 
   closeAnyModal();
 
-  const extrasAtivos = (data.extras || []).filter(e => e.active !== false);
+  const extrasAtivos = (data.extras || []).filter(e => e.active);
 
   const modal = document.createElement("div");
   modal.className = "promo-overlay";
@@ -122,19 +124,21 @@ function openExtras(id) {
       ${
         extrasAtivos.length
           ? extrasAtivos.map(e => `
-            <label class="extra-item">
-              <input type="checkbox" value="${e.id}">
-              <span>${e.name}</span>
-              <strong>R$ ${e.price.toFixed(2)}</strong>
-            </label>
-          `).join("")
+              <label class="extra-item">
+                <input type="checkbox" value="${e.id}">
+                <span>${e.name}</span>
+                <strong>R$ ${e.price.toFixed(2)}</strong>
+              </label>
+            `).join("")
           : `<p style="opacity:.6">Nenhum adicional disponível</p>`
       }
 
       <button class="btn btn-green" onclick="confirmExtras()">
         Adicionar ao pedido
       </button>
-      <button class="btn btn-ghost" onclick="closeAnyModal()">Cancelar</button>
+      <button class="btn btn-ghost" onclick="closeAnyModal()">
+        Cancelar
+      </button>
     </div>
   `;
 
@@ -142,13 +146,13 @@ function openExtras(id) {
 }
 
 function confirmExtras() {
-  cart.push(selectedProduct);
+  cart.push({ ...selectedProduct });
 
   document
     .querySelectorAll("#extras-modal input:checked")
     .forEach(chk => {
       const extra = data.extras.find(e => e.id == chk.value);
-      if (extra) cart.push(extra);
+      if (extra) cart.push({ ...extra });
     });
 
   closeAnyModal();
@@ -156,7 +160,7 @@ function confirmExtras() {
 }
 
 // ==================================================
-// PROMOÇÃO DO DIA (COM CONTADOR ATÉ MEIA-NOITE)
+// PROMOÇÃO DO DIA (iOS SAFE)
 // ==================================================
 function renderPromo() {
   if (!data.promo || !data.promo.active) return;
@@ -177,10 +181,23 @@ function renderPromo() {
       <strong>R$ ${data.promo.price.toFixed(2)}</strong>
       <div id="promo-timer"></div>
 
-      <button class="btn btn-green" onclick="acceptPromo()">Aproveitar</button>
-      <button class="btn btn-ghost" onclick="closePromo()">Depois</button>
+      <button class="btn btn-green" data-action="accept-promo">
+        Aproveitar
+      </button>
+      <button class="btn btn-ghost" data-action="close-promo">
+        Depois
+      </button>
     </div>
   `;
+
+  // ✅ EVENT DELEGATION (FUNCIONA NO IPHONE)
+  modal.addEventListener("click", e => {
+    const action = e.target.getAttribute("data-action");
+    if (!action) return;
+
+    if (action === "accept-promo") acceptPromo();
+    if (action === "close-promo") closePromo();
+  });
 
   document.body.appendChild(modal);
   startDailyCountdown();
@@ -281,6 +298,8 @@ function sendToWhatsApp() {
   );
 }
 
+// ==================================================
+// UTIL
 // ==================================================
 function closeAnyModal() {
   document.querySelectorAll(".promo-overlay").forEach(m => m.remove());
