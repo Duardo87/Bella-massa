@@ -1,47 +1,48 @@
 /* =====================================================
-   RESET E BASE
+   RESET E VARIÁVEIS
 ===================================================== */
 * {
   box-sizing: border-box;
 }
 
+:root {
+  --primary: #b11212;
+  --primary-dark: #8b0000;
+  --green: #25d366;
+  --bg: #f4f4f4;
+  --card: #ffffff;
+  --text: #222;
+  --muted: #777;
+  --radius: 16px;
+  --shadow: 0 6px 18px rgba(0,0,0,.12);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-  background: #f4f4f4;
-  color: #222;
+  background: var(--bg);
+  color: var(--text);
   transition: background .3s, color .3s;
 }
 
 /* ================= DARK MODE ================= */
 body.dark {
-  background: #121212;
-  color: #eaeaea;
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #eaeaea;
+  --muted: #aaa;
+  --shadow: 0 8px 22px rgba(0,0,0,.5);
 }
 
 body.dark .site-header {
   background: linear-gradient(135deg, #1f1f1f, #000);
 }
 
-body.dark .categories,
-body.dark .product-card,
-body.dark .cart,
-body.dark .promo-card,
-body.dark .admin-card {
-  background: #1e1e1e;
-  color: #fff;
-}
-
-body.dark .price,
-body.dark #promo-timer {
-  color: #ff4d4d;
-}
-
 /* =====================================================
    HEADER
 ===================================================== */
 .site-header {
-  background: linear-gradient(135deg, #b11212, #8b0000);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   padding: 16px;
   position: sticky;
@@ -58,6 +59,7 @@ body.dark #promo-timer {
   color: #fff;
   font-size: 14px;
   text-decoration: none;
+  opacity: .9;
 }
 
 /* =====================================================
@@ -68,23 +70,25 @@ body.dark #promo-timer {
   gap: 10px;
   padding: 12px;
   overflow-x: auto;
-  background: #fff;
-  border-bottom: 1px solid #eee;
+  background: var(--card);
+  border-bottom: 1px solid rgba(0,0,0,.05);
 }
 
 .categories button {
   background: transparent;
-  border: 2px solid #b11212;
-  color: #b11212;
+  border: 2px solid var(--primary);
+  color: var(--primary);
   padding: 10px 18px;
   border-radius: 999px;
-  font-weight: bold;
+  font-weight: 700;
   cursor: pointer;
   transition: .2s;
+  white-space: nowrap;
 }
 
-.categories button.active {
-  background: #b11212;
+.categories button.active,
+.categories button:hover {
+  background: var(--primary);
   color: #fff;
 }
 
@@ -99,11 +103,12 @@ body.dark #promo-timer {
 }
 
 .product-card {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
   padding: 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  box-shadow: var(--shadow);
   animation: fadeUp .4s ease;
+  position: relative;
 }
 
 .product-card img {
@@ -113,10 +118,20 @@ body.dark #promo-timer {
   border-radius: 12px;
 }
 
+.product-card h3 {
+  margin: 10px 0 4px;
+}
+
+.product-card p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
 .price {
   font-size: 22px;
   font-weight: bold;
-  color: #b11212;
+  color: var(--primary);
   margin: 10px 0;
 }
 
@@ -124,7 +139,9 @@ body.dark #promo-timer {
    SELO MAIS PEDIDO
 ===================================================== */
 .badge {
-  display: inline-block;
+  position: absolute;
+  top: 12px;
+  left: 12px;
   background: gold;
   color: #000;
   padding: 4px 10px;
@@ -153,19 +170,19 @@ body.dark #promo-timer {
 }
 
 .btn-green {
-  background: #25d366;
+  background: var(--green);
   color: #fff;
 }
 
 .btn-ghost {
   background: transparent;
-  color: #888;
+  color: var(--muted);
 }
 
 /* =====================================================
-   MODAL (PROMO + ADICIONAIS)
+   MODAIS (PROMO / ADICIONAIS)
 ===================================================== */
-.promo-overlay {
+.modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.65);
@@ -175,8 +192,8 @@ body.dark #promo-timer {
   z-index: 999;
 }
 
-.promo-card {
-  background: #fff;
+.modal-card {
+  background: var(--card);
   border-radius: 20px;
   padding: 16px;
   width: 90%;
@@ -184,62 +201,64 @@ body.dark #promo-timer {
   animation: fadeUp .4s ease;
 }
 
-.promo-card img {
+.modal-card img {
   width: 100%;
   border-radius: 14px;
   margin-bottom: 10px;
 }
 
 /* ===== CHECKBOX BONITO (ADICIONAIS) ===== */
-.promo-card label {
+.extra-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  border-radius: 10px;
-  background: #f7f7f7;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.04);
   margin-bottom: 8px;
   cursor: pointer;
 }
 
-body.dark .promo-card label {
-  background: #2a2a2a;
+body.dark .extra-item {
+  background: rgba(255,255,255,.06);
 }
 
-.promo-card input[type="checkbox"] {
+.extra-item input {
   transform: scale(1.3);
 }
 
 /* =====================================================
-   CONTADOR ANIMADO
+   CONTADOR PROMO
 ===================================================== */
 #promo-timer {
   margin: 10px 0;
   font-weight: bold;
-  color: #b11212;
+  color: var(--primary);
   animation: pulse 1s infinite;
 }
 
-@keyframes pulse {
-  0% { opacity: 1 }
-  50% { opacity: .4 }
-  100% { opacity: 1 }
-}
-
 /* =====================================================
-   CARRINHO / RESUMO
+   CARRINHO / RESUMO iFOOD
 ===================================================== */
 .cart {
   position: fixed;
   bottom: 90px;
   right: 16px;
-  background: #fff;
-  border-radius: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
   padding: 14px;
   width: 260px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  box-shadow: var(--shadow);
   z-index: 999;
   animation: fadeUp .3s ease;
+}
+
+.combo-suggestion {
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255,193,7,.15);
+  font-size: 14px;
 }
 
 /* =====================================================
@@ -249,7 +268,7 @@ body.dark .promo-card label {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: #25d366;
+  background: var(--green);
   color: #fff;
   padding: 16px 22px;
   border-radius: 999px;
@@ -261,13 +280,13 @@ body.dark .promo-card label {
 }
 
 /* =====================================================
-   ADMIN PREMIUM (BASE)
+   ADMIN (BASE PREMIUM)
 ===================================================== */
 .admin-card {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
   padding: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.15);
+  box-shadow: var(--shadow);
 }
 
 /* =====================================================
@@ -289,6 +308,12 @@ body.dark .promo-card label {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes pulse {
+  0% { opacity: 1 }
+  50% { opacity: .4 }
+  100% { opacity: 1 }
 }
 
 /* =====================================================

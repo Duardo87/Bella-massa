@@ -12,7 +12,7 @@ const DEFAULT_DATA = {
     { id: 2, name: "Extra queijo", price: 6 },
     { id: 3, name: "Catupiry", price: 6 }
   ],
-  theme: "auto" // auto | light | dark
+  theme: "auto"
 };
 
 let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_DATA;
@@ -32,6 +32,9 @@ function renderPublic() {
   renderPromo();
 }
 
+// ============================
+// HEADER
+// ============================
 function renderHeader() {
   document.getElementById("store-name").innerText = data.store.name;
   document.getElementById("store-phone").href =
@@ -39,7 +42,7 @@ function renderHeader() {
 }
 
 // ============================
-// TEMA ESCURO
+// TEMA (DARK / LIGHT)
 // ============================
 function applyTheme() {
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -53,14 +56,15 @@ function applyTheme() {
 // CATEGORIAS AUTOMÁTICAS
 // ============================
 function renderCategories() {
-  const cats = [...new Set((data.products || []).map(p => p.category))];
-  const el = document.getElementById("categories");
-  el.innerHTML = "";
+  const categories = [...new Set(data.products.map(p => p.category))];
+  const nav = document.getElementById("categories");
+  nav.innerHTML = "";
   
-  cats.forEach((cat, i) => {
+  categories.forEach((cat, index) => {
     const btn = document.createElement("button");
-    btn.innerText = cat;
-    btn.className = i === 0 ? "active" : "";
+    btn.textContent = cat;
+    if (index === 0) btn.classList.add("active");
+    
     btn.onclick = () => {
       document
         .querySelectorAll(".categories button")
@@ -68,10 +72,11 @@ function renderCategories() {
       btn.classList.add("active");
       renderProducts(cat);
     };
-    el.appendChild(btn);
+    
+    nav.appendChild(btn);
   });
   
-  if (cats.length) renderProducts(cats[0]);
+  if (categories.length) renderProducts(categories[0]);
 }
 
 // ============================
@@ -106,27 +111,31 @@ function openExtras(id) {
   selectedProduct = data.products.find(p => p.id === id);
   if (!selectedProduct) return;
   
+  closeAnyModal();
+  
   const modal = document.createElement("div");
   modal.className = "promo-overlay";
+  modal.id = "extras-modal";
+  
   modal.innerHTML = `
     <div class="promo-card">
       <h3>➕ Adicionais</h3>
-      ${data.extras
-        .map(
-          e => `
-        <label style="display:flex;justify-content:space-between;margin:8px 0">
-          <span>${e.name}</span>
-          <input type="checkbox" value="${e.id}">
-          <span>R$ ${e.price}</span>
-        </label>
-      `
-        )
-        .join("")}
 
-      <button class="btn btn-green" onclick="confirmExtras()">Confirmar</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <div class="extras-list">
+        ${data.extras.map(e => `
+          <label class="extra-item">
+            <input type="checkbox" value="${e.id}">
+            <span>${e.name}</span>
+            <strong>R$ ${e.price.toFixed(2)}</strong>
+          </label>
+        `).join("")}
+      </div>
+
+      <button class="btn btn-green" onclick="confirmExtras()">Adicionar ao pedido</button>
+      <button class="btn btn-ghost" onclick="closeAnyModal()">Cancelar</button>
     </div>
   `;
+  
   document.body.appendChild(modal);
 }
 
@@ -134,18 +143,18 @@ function confirmExtras() {
   cart.push(selectedProduct);
   
   document
-    .querySelectorAll(".promo-card input[type=checkbox]:checked")
+    .querySelectorAll("#extras-modal input[type=checkbox]:checked")
     .forEach(chk => {
       const extra = data.extras.find(e => e.id == chk.value);
       if (extra) cart.push(extra);
     });
   
-  closeModal();
+  closeAnyModal();
   renderCart();
 }
 
-function closeModal() {
-  document.querySelector(".promo-overlay")?.remove();
+function closeAnyModal() {
+  document.querySelectorAll(".promo-overlay").forEach(m => m.remove());
 }
 
 // ============================
@@ -153,13 +162,14 @@ function closeModal() {
 // ============================
 function renderPromo() {
   if (!data.promo || !data.promo.active) return;
-  
-  const fim = data.promo.start + data.promo.minutes * 60000;
-  if (Date.now() > fim) return;
   if (sessionStorage.getItem("promoClosed")) return;
+  
+  const end = data.promo.start + data.promo.minutes * 60000;
+  if (Date.now() > end) return;
   
   const modal = document.createElement("div");
   modal.className = "promo-overlay";
+  
   modal.innerHTML = `
     <div class="promo-card">
       <img src="${data.promo.image}">
@@ -167,31 +177,37 @@ function renderPromo() {
       <p>${data.promo.description}</p>
       <strong>R$ ${data.promo.price.toFixed(2)}</strong>
       <div id="promo-timer"></div>
+
       <button class="btn btn-green" onclick="acceptPromo()">Aproveitar</button>
       <button class="btn btn-ghost" onclick="closePromo()">Depois</button>
     </div>
   `;
+  
   document.body.appendChild(modal);
-  animatedCountdown(fim);
+  animatedCountdown(end);
 }
 
-function animatedCountdown(fim) {
+function animatedCountdown(end) {
   const el = document.getElementById("promo-timer");
-  const t = setInterval(() => {
-    const diff = fim - Date.now();
-    if (diff <= 0) return clearInterval(t);
+  
+  const timer = setInterval(() => {
+    const diff = end - Date.now();
+    if (diff <= 0) {
+      clearInterval(timer);
+      el.textContent = "Promo encerrada";
+      return;
+    }
     
     const m = Math.floor(diff / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    el.innerText = `⏰ ${m}:${s.toString().padStart(2, "0")}`;
-    
+    el.textContent = `⏰ ${m}:${s.toString().padStart(2, "0")}`;
     if (m === 0) el.style.color = "red";
   }, 1000);
 }
 
 function closePromo() {
   sessionStorage.setItem("promoClosed", "1");
-  closeModal();
+  closeAnyModal();
 }
 
 function acceptPromo() {
@@ -204,35 +220,33 @@ function acceptPromo() {
 // COMBO INTELIGENTE
 // ============================
 function sugestaoCombo(total) {
-  if (total < 40) return "🔥 Combo Individual: adicione refri";
-  if (total < 80) return "🔥 Combo Casal: adicione broto";
+  if (total < 40) return "🔥 Combo Individual: adicione um refri";
+  if (total < 80) return "🔥 Combo Casal: adicione pizza broto";
   return "🔥 Combo Família: pizza grande com desconto";
 }
 
 // ============================
-// RESUMO ESTILO iFOOD
+// CARRINHO (ESTILO iFOOD)
 // ============================
 function renderCart() {
   const div = document.getElementById("cart");
   div.classList.remove("hidden");
   
   let total = 0;
-  div.innerHTML = "<h3>🧾 Seu pedido</h3>";
+  let html = "<h3>🧾 Seu pedido</h3>";
   
   cart.forEach(i => {
     total += i.price;
-    div.innerHTML += `<p>${i.name} — R$ ${i.price.toFixed(2)}</p>`;
+    html += `<p>${i.name} — R$ ${i.price.toFixed(2)}</p>`;
   });
   
-  div.innerHTML += `
-    <div style="margin:8px 0;font-size:14px">
-      ${sugestaoCombo(total)}
-    </div>
+  html += `
+    <div class="combo-suggestion">${sugestaoCombo(total)}</div>
     <strong>Total: R$ ${total.toFixed(2)}</strong>
-    <button class="btn btn-green" onclick="sendToWhatsApp()">
-      Enviar no WhatsApp
-    </button>
+    <button class="btn btn-green" onclick="sendToWhatsApp()">Enviar no WhatsApp</button>
   `;
+  
+  div.innerHTML = html;
 }
 
 // ============================
@@ -252,7 +266,7 @@ function sendToWhatsApp() {
 }
 
 // ============================
-// EXPORT / IMPORT JSON
+// EXPORT / IMPORT
 // ============================
 function exportJSON() {
   const blob = new Blob([JSON.stringify(data, null, 2)], {

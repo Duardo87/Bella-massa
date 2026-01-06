@@ -72,7 +72,19 @@ button {
   color: #b11212;
 }
 
+.extra-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px;
+  background:#f7f7f7;
+  border-radius:10px;
+  margin-bottom:8px;
+}
+
 .hidden { display: none; }
+small { color:#666 }
 </style>
 </head>
 
@@ -130,6 +142,21 @@ button {
   <div id="productList"></div>
 </div>
 
+<!-- 🔥 ADICIONAIS -->
+<div class="card">
+  <h2>➕ Adicionais</h2>
+
+  <label>Nome do adicional</label>
+  <input id="extraName" placeholder="Ex: Borda recheada">
+
+  <label>Preço</label>
+  <input id="extraPrice" type="number" step="0.01" placeholder="Ex: 5.00">
+
+  <button class="btn-outline" onclick="addExtra()">Adicionar adicional</button>
+
+  <div id="extraList" style="margin-top:14px"></div>
+</div>
+
 <!-- PROMO -->
 <div class="card">
   <h2>🔥 Promoção do Dia</h2>
@@ -154,9 +181,9 @@ button {
 </div>
 
 <script>
-const KEY = "pizzaria-data";
-const DB = () => JSON.parse(localStorage.getItem(KEY) || "{}");
-const SAVE = d => localStorage.setItem(KEY, JSON.stringify(d));
+const KEY="pizzaria-data";
+const DB=()=>JSON.parse(localStorage.getItem(KEY)||"{}");
+const SAVE=d=>localStorage.setItem(KEY,JSON.stringify(d));
 
 function login(){
   loginDiv.classList.add("hidden");
@@ -164,34 +191,33 @@ function login(){
   load();
 }
 
-function logout(){ location.reload(); }
+function logout(){location.reload()}
 
 function load(){
-  const d = DB();
-  storeName.value = d.store?.name || "";
-  storePhone.value = d.store?.phone || "";
+  const d=DB();
+  storeName.value=d.store?.name||"";
+  storePhone.value=d.store?.phone||"";
   renderCategories();
   renderProducts();
+  renderExtras();
 }
 
 function saveStore(){
-  const d = DB();
-  d.store = { name: storeName.value, phone: storePhone.value };
-  SAVE(d);
-  alert("Dados salvos");
+  const d=DB();
+  d.store={name:storeName.value,phone:storePhone.value};
+  SAVE(d);alert("Dados salvos");
 }
 
 function addCategory(){
-  const d = DB();
-  d.categories = d.categories || [];
+  const d=DB();
+  d.categories=d.categories||[];
   d.categories.push(catName.value);
-  SAVE(d);
-  catName.value="";
+  SAVE(d);catName.value="";
   renderCategories();
 }
 
 function renderCategories(){
-  const d = DB();
+  const d=DB();
   catList.innerHTML="";
   prodCat.innerHTML="";
   (d.categories||[]).forEach(c=>{
@@ -201,55 +227,110 @@ function renderCategories(){
 }
 
 function addProduct(){
-  const d = DB();
-  d.products = d.products || [];
-  const reader = new FileReader();
-  reader.onload=()=>{
+  const d=DB();
+  d.products=d.products||[];
+  const r=new FileReader();
+  r.onload=()=>{
     d.products.push({
       id:Date.now(),
       name:prodName.value,
       desc:prodDesc.value,
       price:parseFloat(prodPrice.value),
       category:prodCat.value,
-      image:reader.result,
+      image:r.result,
       best:prodBest.checked
     });
     SAVE(d);
     renderProducts();
   };
-  reader.readAsDataURL(prodImage.files[0]);
+  r.readAsDataURL(prodImage.files[0]);
 }
 
 function renderProducts(){
-  const d = DB();
+  const d=DB();
   productList.innerHTML="";
   (d.products||[]).forEach(p=>{
     productList.innerHTML+=`<p>${p.name} - R$ ${p.price}</p>`;
   });
 }
 
+/* ========= ADICIONAIS ========= */
+function renderExtras(){
+  const d=DB();
+  d.extras=d.extras||[];
+  extraList.innerHTML="";
+
+  d.extras.forEach(e=>{
+    extraList.innerHTML+=`
+      <div class="extra-item">
+        <div>
+          <strong>${e.name}</strong><br>
+          <small>R$ ${e.price.toFixed(2)}</small>
+        </div>
+        <label>
+          <input type="checkbox" ${e.active!==false?"checked":""}
+          onchange="toggleExtra(${e.id},this.checked)">
+          Ativo
+        </label>
+        <button onclick="removeExtra(${e.id})"
+          style="background:#b11212;color:#fff;border:none;
+          padding:6px 10px;border-radius:8px">✕</button>
+      </div>
+    `;
+  });
+}
+
+function addExtra(){
+  const d=DB();
+  d.extras=d.extras||[];
+  d.extras.push({
+    id:Date.now(),
+    name:extraName.value,
+    price:parseFloat(extraPrice.value),
+    active:true
+  });
+  SAVE(d);
+  extraName.value="";extraPrice.value="";
+  renderExtras();
+}
+
+function toggleExtra(id,status){
+  const d=DB();
+  const e=d.extras.find(x=>x.id===id);
+  if(e){e.active=status;SAVE(d);}
+}
+
+function removeExtra(id){
+  if(!confirm("Remover adicional?"))return;
+  const d=DB();
+  d.extras=d.extras.filter(e=>e.id!==id);
+  SAVE(d);
+  renderExtras();
+}
+
+/* ========= PROMO ========= */
 function savePromo(){
-  const d = DB();
-  const reader = new FileReader();
-  reader.onload=()=>{
+  const d=DB();
+  const r=new FileReader();
+  r.onload=()=>{
     d.promo={
       active:true,
       description:promoDesc.value,
       price:parseFloat(promoPrice.value),
-      image:reader.result,
+      image:r.result,
       minutes:parseInt(promoTime.value),
       start:Date.now()
     };
-    SAVE(d);
-    alert("Promo salva");
+    SAVE(d);alert("Promo salva");
   };
-  reader.readAsDataURL(promoImage.files[0]);
+  r.readAsDataURL(promoImage.files[0]);
 }
 
+/* ========= BACKUP ========= */
 function exportJSON(){
-  const blob=new Blob([JSON.stringify(DB(),null,2)],{type:"application/json"});
+  const b=new Blob([JSON.stringify(DB(),null,2)],{type:"application/json"});
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
+  a.href=URL.createObjectURL(b);
   a.download="backup.json";
   a.click();
 }
@@ -257,7 +338,7 @@ function exportJSON(){
 function importJSON(){
   const f=importFile.files[0];
   const r=new FileReader();
-  r.onload=()=>{localStorage.setItem(KEY,r.result);location.reload();}
+  r.onload=()=>{localStorage.setItem(KEY,r.result);location.reload()};
   r.readAsText(f);
 }
 
