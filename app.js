@@ -1,309 +1,237 @@
-// ==================================================
-// CONFIG / STORAGE
-// ==================================================
+// app.js — versão revisada e mais robusta
+
+// configuração
 const STORAGE_KEY = "pizzaria-data";
+// coloque o número correto no formato internacional sem símbolos
+const WHATS = "5562993343622";
 
-const DEFAULT_DATA = {
-  store: { name: "Bella Massa", phone: "5562993343622" },
-  promo: null,
-  products: [],
-  extras: [],
-  theme: "auto"
-};
-
-let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_DATA;
+// estado
 let cart = [];
-let selectedProduct = null;
 
-const save = () =>
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-
-// ==================================================
-// SITE PÚBLICO
-// ==================================================
-function renderPublic() {
-  applyTheme();
-  renderHeader();
-  renderCategories();
-  renderPromo(); // 🔥 promo sempre ao entrar
-}
-
-// ==================================================
-// HEADER
-// ==================================================
-function renderHeader() {
-  if (!data.store) return;
-  document.getElementById("store-name").innerText = data.store.name || "";
-  document.getElementById("store-phone").href =
-    "https://wa.me/" + (data.store.phone || "");
-}
-
-// ==================================================
-// TEMA
-// ==================================================
-function applyTheme() {
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const theme =
-    data.theme === "auto" ? (prefersDark ? "dark" : "light") : data.theme;
-  document.body.classList.toggle("dark", theme === "dark");
-}
-
-// ==================================================
-// CATEGORIAS (ESTILO iFOOD)
-// ==================================================
-function renderCategories() {
-  if (!data.products.length) return;
-
-  const categories = [...new Set(data.products.map(p => p.category))];
-  const nav = document.getElementById("categories");
-  nav.innerHTML = "";
-
-  categories.forEach((cat, index) => {
-    const btn = document.createElement("button");
-    btn.textContent = cat;
-    if (index === 0) btn.classList.add("active");
-
-    btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".categories button")
-        .forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderProducts(cat);
-    });
-
-    nav.appendChild(btn);
-  });
-
-  renderProducts(categories[0]);
-}
-
-// ==================================================
-// PRODUTOS
-// ==================================================
-function renderProducts(category) {
-  const grid = document.getElementById("products");
-  grid.innerHTML = "";
-
-  data.products
-    .filter(p => p.category === category)
-    .forEach(p => {
-      grid.innerHTML += `
-        <div class="product-card">
-          ${p.best ? `<span class="badge">⭐ Mais pedido</span>` : ""}
-          <img src="${p.image}" alt="${p.name}">
-          <h3>${p.name}</h3>
-          <p>${p.desc || ""}</p>
-          <div class="price">R$ ${p.price.toFixed(2)}</div>
-          <button class="btn btn-green" onclick="openExtras(${p.id})">
-            Adicionar
-          </button>
-        </div>
-      `;
-    });
-}
-
-// ==================================================
-// MODAL DE ADICIONAIS
-// ==================================================
-function openExtras(id) {
-  selectedProduct = data.products.find(p => p.id === id);
-  if (!selectedProduct) return;
-
-  closeAnyModal();
-
-  const extrasAtivos = (data.extras || []).filter(e => e.active);
-
-  const modal = document.createElement("div");
-  modal.className = "promo-overlay";
-  modal.id = "extras-modal";
-
-  modal.innerHTML = `
-    <div class="promo-card">
-      <h3>➕ Adicionais</h3>
-
-      ${
-        extrasAtivos.length
-          ? extrasAtivos.map(e => `
-              <label class="extra-item">
-                <input type="checkbox" value="${e.id}">
-                <span>${e.name}</span>
-                <strong>R$ ${e.price.toFixed(2)}</strong>
-              </label>
-            `).join("")
-          : `<p style="opacity:.6">Nenhum adicional disponível</p>`
-      }
-
-      <button class="btn btn-green" onclick="confirmExtras()">
-        Adicionar ao pedido
-      </button>
-      <button class="btn btn-ghost" onclick="closeAnyModal()">
-        Cancelar
-      </button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-function confirmExtras() {
-  cart.push({ ...selectedProduct });
-
-  document
-    .querySelectorAll("#extras-modal input:checked")
-    .forEach(chk => {
-      const extra = data.extras.find(e => e.id == chk.value);
-      if (extra) cart.push({ ...extra });
-    });
-
-  closeAnyModal();
-  renderCart();
-}
-
-// ==================================================
-// PROMOÇÃO DO DIA (iOS SAFE)
-// ==================================================
-function renderPromo() {
-  if (!data.promo || !data.promo.active) return;
-
-  const todayKey = "promoClosed-" + new Date().toISOString().slice(0, 10);
-  if (localStorage.getItem(todayKey)) return;
-
-  closeAnyModal();
-
-  const modal = document.createElement("div");
-  modal.className = "promo-overlay";
-
-  modal.innerHTML = `
-    <div class="promo-card">
-      ${data.promo.image ? `<img src="${data.promo.image}">` : ""}
-      <h2>🔥 Promoção do Dia</h2>
-      <p>${data.promo.description}</p>
-      <strong>R$ ${data.promo.price.toFixed(2)}</strong>
-      <div id="promo-timer"></div>
-
-      <button class="btn btn-green" data-action="accept-promo">
-        Aproveitar
-      </button>
-      <button class="btn btn-ghost" data-action="close-promo">
-        Depois
-      </button>
-    </div>
-  `;
-
-  // ✅ EVENT DELEGATION (FUNCIONA NO IPHONE)
-  modal.addEventListener("click", e => {
-    const action = e.target.getAttribute("data-action");
-    if (!action) return;
-
-    if (action === "accept-promo") acceptPromo();
-    if (action === "close-promo") closePromo();
-  });
-
-  document.body.appendChild(modal);
-  startDailyCountdown();
-}
-
-function startDailyCountdown() {
-  const el = document.getElementById("promo-timer");
-
-  function update() {
-    const now = new Date();
-    const end = new Date();
-    end.setHours(23, 59, 59, 999);
-
-    const diff = end - now;
-    if (diff <= 0) {
-      el.innerText = "⏰ Últimos minutos!";
-      return;
-    }
-
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-
-    el.innerText = `⏰ Termina hoje em ${h}h ${m}m ${s}s`;
+// lê dados do localStorage com segurança
+function loadData() {
+  let raw = {};
+  try {
+    raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch (e) {
+    raw = {};
   }
 
-  update();
-  setInterval(update, 1000);
+  return {
+    store: { name: "Bella Massa", phone: WHATS, ...(raw.store || {}) },
+    products: Array.isArray(raw.products) ? raw.products : [],
+    extras: Array.isArray(raw.extras) ? raw.extras : [],
+    borders: Array.isArray(raw.borders) ? raw.borders : [],
+    promo: raw.promo || null,
+    theme: raw.theme || "auto"
+  };
 }
 
-function closePromo() {
-  const todayKey = "promoClosed-" + new Date().toISOString().slice(0, 10);
-  localStorage.setItem(todayKey, "1");
-  closeAnyModal();
+function formatCurrency(v) {
+  return Number(v).toFixed(2).replace(".", ",");
 }
 
-function acceptPromo() {
-  cart.push({
-    name: data.promo.description,
-    price: data.promo.price
+// renderiza a página pública (chamar no init)
+function renderPublic() {
+  const data = loadData();
+
+  const storeNameEl = document.getElementById("store-name");
+  const storePhoneEl = document.getElementById("store-phone");
+
+  if (storeNameEl) storeNameEl.textContent = data.store.name || "Bella Massa";
+  if (storePhoneEl) storePhoneEl.href = `https://wa.me/${data.store.phone || WHATS}`;
+
+  renderProducts(); // usa dados atuais
+}
+
+// renderiza produtos (com suporte a prices ou price único)
+function renderProducts() {
+  const data = loadData();
+  const grid = document.getElementById("products");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  if (!Array.isArray(data.products) || data.products.length === 0) {
+    grid.innerHTML = `<p style="opacity:.6;padding:16px">Nenhum produto disponível</p>`;
+    return;
+  }
+
+  data.products.forEach(p => {
+    const img = p.image ? `<img src="${p.image}" alt="${escapeHtml(p.name)}">` : "";
+    // se existir p.prices como objeto com P/M/G
+    let sizeSelectHtml = "";
+    if (p.prices && typeof p.prices === "object") {
+      // monta opções apenas para chaves existentes (P M G)
+      const opts = Object.keys(p.prices)
+        .map(k => `<option value="${k}">${k} - R$ ${formatCurrency(p.prices[k])}</option>`)
+        .join("");
+      sizeSelectHtml = `<select id="size-${p.id}" class="size-select">${opts}</select>`;
+    } else {
+      // fallback para campo price único
+      const price = typeof p.price === "number" ? p.price : (p.prices && p.prices.P ? p.prices.P : 0);
+      sizeSelectHtml = `<select id="size-${p.id}" class="size-select">
+        <option value="__single">Único - R$ ${formatCurrency(price)}</option>
+      </select>`;
+    }
+
+    grid.insertAdjacentHTML("beforeend", `
+      <div class="product-card">
+        ${img}
+        <h3>${escapeHtml(p.name)}</h3>
+        <p>${escapeHtml(p.desc || "")}</p>
+        <div class="price">${typeof p.price === "number" && !p.prices ? `R$ ${formatCurrency(p.price)}` : ""}</div>
+        ${sizeSelectHtml}
+        <button class="btn btn-green" data-action="add" data-id="${p.id}">
+          Adicionar
+        </button>
+      </div>
+    `);
   });
-  closePromo();
+}
+
+// adiciona produto ao carrinho (mantemos função global add para compatibilidade)
+function add(id) {
+  // delega para a versão interna
+  addProductToCart(id);
+}
+window.add = add; // garante compatibilidade com onclick inline
+
+function addProductToCart(id) {
+  const data = loadData();
+  const p = data.products.find(x => x.id == id);
+  if (!p) {
+    alert("Produto não encontrado");
+    return;
+  }
+
+  // pega o select de tamanho, se existir
+  const sizeEl = document.getElementById(`size-${id}`);
+  let price = 0;
+  let label = p.name;
+
+  if (p.prices && typeof p.prices === "object" && sizeEl) {
+    const size = sizeEl.value;
+    price = Number(p.prices[size]) || 0;
+    label = `${p.name} (${size})`;
+  } else if (typeof p.price === "number") {
+    price = Number(p.price);
+    label = `${p.name}`;
+  } else if (p.prices && p.prices.P) {
+    price = Number(p.prices.P);
+    label = `${p.name}`;
+  } else {
+    price = 0;
+  }
+
+  cart.push({ name: label, price: Number(price) });
   renderCart();
 }
 
-// ==================================================
-// COMBO INTELIGENTE
-// ==================================================
-function sugestaoCombo(total) {
-  if (total < 40) return "🔥 Combo Individual: adicione um refri";
-  if (total < 80) return "🔥 Combo Casal: adicione pizza broto";
-  return "🔥 Combo Família: pizza grande com desconto";
-}
-
-// ==================================================
-// CARRINHO / RESUMO FINAL
-// ==================================================
+// renderiza o carrinho com endereço e forma de pagamento
 function renderCart() {
   const div = document.getElementById("cart");
-  div.classList.remove("hidden");
+  if (!div) return;
 
   let total = 0;
   let html = "<h3>🧾 Seu pedido</h3>";
 
-  cart.forEach(i => {
-    total += i.price;
-    html += `<p>${i.name} — R$ ${i.price.toFixed(2)}</p>`;
-  });
+  if (!cart.length) {
+    html += "<p style='opacity:.6'>Carrinho vazio</p>";
+  } else {
+    cart.forEach((i, idx) => {
+      total += Number(i.price || 0);
+      html += `<p>${escapeHtml(i.name)} — R$ ${formatCurrency(i.price)}</p>`;
+    });
+  }
 
   html += `
-    <div class="combo-suggestion">${sugestaoCombo(total)}</div>
-    <strong>Total: R$ ${total.toFixed(2)}</strong>
-    <button class="btn btn-green" onclick="sendToWhatsApp()">
-      Enviar no WhatsApp
-    </button>
+    <p><strong>Total: R$ ${formatCurrency(total)}</strong></p>
+
+    <input id="address" placeholder="Endereço completo" style="width:100%;padding:8px;margin:6px 0">
+    <select id="payment" style="width:100%;padding:8px;margin-bottom:10px">
+      <option value="Dinheiro">Dinheiro</option>
+      <option value="Pix">Pix</option>
+      <option value="Cartão">Cartão</option>
+    </select>
+
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-green" data-action="send-whats">Enviar no WhatsApp</button>
+      <button class="btn btn-ghost" data-action="clear-cart">Limpar</button>
+    </div>
   `;
 
   div.innerHTML = html;
+  div.classList.remove("hidden");
 }
 
-// ==================================================
-// WHATSAPP
-// ==================================================
+// envia para WhatsApp (pega address e payment por getElementById)
+function send() {
+  // compatibilidade: se alguém chamar send() globalmente
+  return sendToWhatsApp();
+}
+window.send = send;
+
 function sendToWhatsApp() {
-  let msg = `Pedido - ${data.store.name}%0A%0A`;
+  const data = loadData();
+  if (!data.store || !data.store.phone) {
+    alert("WhatsApp da loja não configurado");
+    return;
+  }
+
+  const address = document.getElementById("address")?.value || "";
+  const payment = document.getElementById("payment")?.value || "";
+
+  let msg = `Pedido - ${data.store.name}\n\n`;
   let total = 0;
 
+  if (!cart.length) {
+    alert("Carrinho vazio");
+    return;
+  }
+
   cart.forEach(i => {
-    total += i.price;
-    msg += `• ${i.name} R$ ${i.price.toFixed(2)}%0A`;
+    total += Number(i.price || 0);
+    msg += `• ${i.name} - R$ ${formatCurrency(i.price)}\n`;
   });
 
-  msg += `%0ATotal: R$ ${total.toFixed(2)}`;
+  msg += `\nTotal: R$ ${formatCurrency(total)}`;
+  msg += `\n\nEndereço: ${address}`;
+  msg += `\nPagamento: ${payment}`;
 
-  window.open(
-    `https://wa.me/${data.store.phone}?text=${msg}`,
-    "_blank"
-  );
+  const phone = data.store.phone || WHATS;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 
-// ==================================================
-// UTIL
-// ==================================================
-function closeAnyModal() {
-  document.querySelectorAll(".promo-overlay").forEach(m => m.remove());
+// limpar carrinho
+function clearCart() {
+  cart = [];
+  renderCart();
+}
+window.clearCart = clearCart;
+
+// simples event delegation para botões (compatível com data-action usados acima)
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+
+  if (action === "add") addProductToCart(id);
+  if (action === "send-whats") sendToWhatsApp();
+  if (action === "clear-cart") clearCart();
+});
+
+// util
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
-save();
+// expõe renderPublic para index inicializar
 window.app = { renderPublic };

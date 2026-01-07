@@ -1,150 +1,84 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Bella Massa • Cardápio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="styles.css">
+
+  <!-- VIEWPORT IOS SAFE -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
 
-<!-- HEADER (sticky) -->
-<header class="site-header" role="banner" aria-label="Cabeçalho da loja">
-  <div style="display:flex;align-items:center;gap:12px;justify-content:space-between">
-    <div>
-      <h1 id="store-name" style="margin:0;font-size:20px">Bella Massa</h1>
-      <div style="font-size:12px;color:rgba(255,255,255,.9)">🍕 Visual premium • Pedidos rápidos</div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center">
-      <a id="store-phone" href="#" target="_blank" class="btn-ghost" aria-label="Pedir pelo WhatsApp">📞 Pedir no WhatsApp</a>
-    </div>
-  </div>
-</header>
-
-<!-- FIXED PROMO BANNER (top, small) -->
-<div id="promo-banner" class="promo-banner hidden" aria-live="polite" style="position:sticky;top:64px;z-index:90;">
-  <!-- conteúdo preenchido via JS -->
-</div>
-
-<!-- PROMOÇÃO DO DIA (MODAL) -->
-<div id="promo-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="modal-card promo-card" role="document" style="max-width:420px">
-    <div style="display:flex;gap:12px;align-items:flex-start">
-      <img id="promo-image" alt="imagem da promoção" style="width:120px;height:90px;object-fit:cover;border-radius:10px" src="">
-      <div style="flex:1">
-        <h2 id="promo-title" style="margin:0 0 6px;font-size:18px">Promoção do Dia</h2>
-        <p id="promo-desc" style="margin:0 0 8px;color:var(--muted);font-size:14px"></p>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <strong id="promo-price" style="font-size:18px;color:var(--primary)"></strong>
-          <div id="promo-timer" style="font-size:13px;color:var(--primary)"></div>
-        </div>
-
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-green" onclick="acceptPromo()" aria-label="Aproveitar promoção">Aproveitar agora</button>
-          <button class="btn btn-ghost" onclick="closePromo()" aria-label="Fechar promoção">Talvez depois</button>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px;color:var(--muted)">
-          <label style="display:flex;gap:8px;align-items:center;cursor:pointer">
-            <input type="checkbox" id="dont-show-today" style="transform:scale(1.15)" />
-            Não mostrar novamente hoje
-          </label>
-          <button class="btn-ghost" onclick="() => { document.getElementById('dont-show-today').checked = true; closePromo(); }" aria-label="Não mostrar hoje">Salvar</button>
-        </div>
+  <!-- ================= HEADER ================= -->
+  <header class="site-header" role="banner">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <h1 id="store-name" style="margin:0;font-size:20px">Bella Massa</h1>
+        <small style="opacity:.9">🍕 Visual premium • Pedidos rápidos</small>
       </div>
+
+      <!-- href será atualizado pelo app.js; rel por segurança -->
+      <a id="store-phone" href="#" target="_blank" rel="noopener noreferrer" class="btn-ghost" aria-label="Pedir pelo WhatsApp">
+        📞 Pedir no WhatsApp
+      </a>
     </div>
-  </div>
-</div>
+  </header>
 
-<!-- CATEGORIAS (estilo iFood) -->
-<nav class="categories" id="categories" aria-label="Categorias" role="navigation"></nav>
+  <!-- ================= CATEGORIAS ================= -->
+  <nav id="categories" class="categories" aria-label="Categorias" role="navigation"></nav>
 
-<!-- PRODUTOS / GRID -->
-<main class="products-grid" id="products" role="main" aria-live="polite"></main>
+  <!-- ================= PRODUTOS ================= -->
+  <main id="products" class="products-grid" role="main" aria-live="polite"></main>
 
-<!-- MODAL DE ADICIONAIS (criado pelo JS) -->
-<!-- O JS cria um modal dentro de #promo-overlay ou em novo elemento .modal-overlay -->
+  <!-- ================= CARRINHO ================= -->
+  <aside id="cart" class="cart hidden" aria-label="Carrinho" aria-hidden="true">
+    <!-- preenchido pelo app.js -->
+  </aside>
 
-<!-- CARRINHO / RESUMO (style iFood) -->
-<aside id="cart" class="cart hidden" role="region" aria-label="Carrinho de compras">
-  <h3 style="margin:0 0 8px">🧾 Seu pedido</h3>
-  <div id="cart-items" style="max-height:300px;overflow:auto;margin-bottom:8px"></div>
+  <!-- ================= BOTÃO FLUTUANTE ================= -->
+  <button id="btn-cart" class="whats-float" type="button" aria-controls="cart" aria-expanded="false" aria-label="Ver pedido">
+    🟢 Ver pedido
+  </button>
 
-  <div id="cart-combo" class="combo" style="margin-bottom:8px"></div>
+  <!-- ================= MODAIS ================= -->
+  <div id="modal-root" aria-hidden="true"></div>
 
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <strong id="cart-total">Total: R$ 0,00</strong>
-  </div>
+  <!-- ================= APP (DEFER evita problemas de ordem) ================= -->
+  <script src="app.js" defer></script>
 
-  <button class="btn btn-green" id="send-whats" onclick="sendToWhatsApp()" aria-label="Enviar pedido pelo WhatsApp">Enviar pedido no WhatsApp</button>
-</aside>
+  <!-- ================= INIT SEGURO ================= -->
+  <script>
+    // inicialização segura: usa DOMContentLoaded (app.js carregado com defer)
+    document.addEventListener("DOMContentLoaded", () => {
+      // inicia o app público (se estiver disponível)
+      if (window.app && typeof window.app.renderPublic === "function") {
+        try { window.app.renderPublic(); } catch (err) { console.error("renderPublic error:", err); }
+      }
 
-<!-- BOTÃO FLUTUANTE (WhatsApp / ver pedido) -->
-<button class="whats-float" onclick="toggleCart()" aria-label="Abrir carrinho">🟢 Ver pedido</button>
+      // controle do carrinho com aria-expanded (acessibilidade)
+      const btnCart = document.getElementById("btn-cart");
+      const cart = document.getElementById("cart");
 
-<!-- SCRIPTS -->
-<script src="app.js"></script>
-<script>
-  // inicialização: garante que promo apareça sempre ao abrir (conforme app.js)
-  document.addEventListener('DOMContentLoaded', () => {
-    if (window.app?.renderPublic) window.app.renderPublic();
-
-    // Se usuário marcar 'não mostrar hoje' no modal, persistimos por hoje
-    const promoOverlay = document.getElementById('promo-overlay');
-    promoOverlay.addEventListener('click', (e) => {
-      // evita fechar ao clicar dentro do card
-      if (e.target === promoOverlay) closePromo();
+      if (btnCart && cart) {
+        btnCart.addEventListener("click", () => {
+          const isHidden = cart.classList.toggle("hidden");
+          // aria-expanded: true = aberto, false = fechado
+          btnCart.setAttribute("aria-expanded", String(!isHidden));
+          cart.setAttribute("aria-hidden", String(isHidden));
+        });
+      }
     });
+  </script>
 
-    // conexão simples: quando fechar promo, checa checkbox e salva "não mostrar hoje"
-    window.closePromo = function(){
-      // se checkbox marcado, grava chave diária
-      try {
-        const cb = document.getElementById('dont-show-today');
-        if (cb && cb.checked) {
-          const key = 'promoClosed-' + new Date().toISOString().slice(0,10);
-          localStorage.setItem(key, '1');
-        }
-      } catch(e){}
-      // delega à função real se existir (app.js)
-      if (typeof closePromo === 'function' && window._closePromoInternal) {
-        window._closePromoInternal(); // placeholder caso app.js exporte função interna
-      }
-      // padrão: esconder overlay
-      document.getElementById('promo-overlay').classList.add('hidden');
-      document.getElementById('promo-overlay').setAttribute('aria-hidden','true');
-    };
+  <noscript>
+    <div style="padding:12px;background:#fff3cd;color:#856404;text-align:center;">
+      JavaScript está desativado — o site precisa de JavaScript para funcionar corretamente.
+    </div>
+  </noscript>
 
-    // aceita promo: aplica checkbox também (se marcado)
-    window.acceptPromo = function(){
-      const cb = document.getElementById('dont-show-today');
-      if(cb && cb.checked){
-        const key = 'promoClosed-' + new Date().toISOString().slice(0,10);
-        localStorage.setItem(key, '1');
-      }
-      // se o app.js tiver acceptPromo, chama; se não, adiciona item simples
-      if (typeof window._acceptPromoInternal === 'function') {
-        window._acceptPromoInternal();
-      } else if (window.app && window.app.promo) {
-        // fallback básico
-        const p = JSON.parse(localStorage.getItem('pizzaria-data') || '{}').promo;
-        if (p) {
-          window.cart = window.cart || [];
-          window.cart.push({ name: p.description || 'Promoção', price: p.price || 0 });
-          // atualiza carrinho visual se função existir
-          if (typeof renderCart === 'function') renderCart();
-        }
-      }
-      document.getElementById('promo-overlay').classList.add('hidden');
-      document.getElementById('promo-overlay').setAttribute('aria-hidden','true');
-    }
-
-    // ensure toggleCart exists
-    window.toggleCart = window.toggleCart || function(){
-      document.getElementById('cart').classList.toggle('hidden');
-    }
-  });
-</script>
 </body>
 </html>

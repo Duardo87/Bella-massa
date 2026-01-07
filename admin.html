@@ -1,301 +1,192 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin • Bella Massa</title>
+  <meta charset="utf-8">
+  <title>Admin • Bella Massa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-:root{
-  --primary:#b11212;
-  --primary-dark:#8b0000;
-  --green:#25d366;
-  --bg:#f4f4f4;
-  --card:#fff;
-  --text:#222;
-  --radius:16px;
-  --shadow:0 10px 28px rgba(0,0,0,.12);
-}
-
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
-  background:var(--bg);
-  color:var(--text);
-}
-
-header{
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-  color:#fff;
-  padding:16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  position:sticky;
-  top:0;
-  z-index:100;
-}
-
-header a{color:#fff;text-decoration:none;font-weight:700}
-
-.container{max-width:820px;margin:auto;padding:16px}
-
-.card{
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:16px;
-  margin-bottom:18px;
-  box-shadow:var(--shadow);
-  animation:fadeUp .35s ease;
-}
-
-h2{margin:0 0 12px}
-
-label{font-size:14px;margin-top:12px;display:block}
-
-input,select{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  margin-top:6px;
-  font-size:15px;
-}
-
-button{
-  margin-top:14px;
-  padding:12px;
-  border-radius:12px;
-  border:none;
-  font-weight:700;
-  cursor:pointer;
-  transition:.2s;
-}
-
-button:hover{transform:scale(1.02)}
-
-.btn{background:var(--green);color:#fff}
-.btn-red{background:var(--primary);color:#fff}
-.btn-outline{background:#fff;border:2px solid var(--primary);color:var(--primary)}
-
-.list p{
-  background:#f7f7f7;
-  padding:10px 12px;
-  border-radius:10px;
-  margin:6px 0;
-  font-weight:600;
-}
-
-.extra-item{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:12px;
-  background:#f7f7f7;
-  border-radius:12px;
-  margin-bottom:8px;
-}
-
-.hidden{display:none}
-
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(14px)}
-  to{opacity:1;transform:translateY(0)}
-}
-</style>
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-<header>
-  <strong>🔐 Admin • Bella Massa</strong>
-  <a href="index.html">Ver site</a>
-</header>
+<!-- ================= LOGIN ================= -->
+<section id="login" style="padding:20px">
+  <h2>🔐 Login Admin</h2>
 
-<div class="container">
+  <input
+    id="loginUser"
+    placeholder="Usuário"
+    style="width:100%;padding:10px;margin-bottom:8px"
+    autocomplete="username"
+  >
 
-<div id="login" class="card">
-  <h2>Login</h2>
-  <input id="email" value="admin@bellamassa.com">
-  <input id="pass" type="password" value="123456">
-  <button class="btn" onclick="login()">Entrar</button>
-</div>
+  <input
+    id="loginPass"
+    type="password"
+    placeholder="Senha"
+    style="width:100%;padding:10px;margin-bottom:12px"
+    autocomplete="current-password"
+  >
 
-<div id="admin" class="hidden">
+  <!-- botão local — não usa onclick para evitar dependência com admin.js -->
+  <button id="btnLogin" class="btn btn-green" style="width:100%">
+    Entrar
+  </button>
 
-<div class="card">
-  <h2>🏪 Dados da Loja</h2>
-  <input id="storeName">
-  <input id="storePhone">
-  <button class="btn-red" onclick="saveStore()">Salvar</button>
-</div>
+  <p style="margin-top:10px;font-size:13px;color:#666">
+    Use <strong>admin</strong> / <strong>123456</strong> (teste).
+  </p>
+</section>
 
-<div class="card">
-  <h2>🗂 Categorias</h2>
-  <input id="catName">
-  <button class="btn-outline" onclick="addCategory()">Adicionar</button>
-  <div id="catList"></div>
-</div>
+<!-- ================= ADMIN ================= -->
+<section id="admin" class="hidden" style="padding:20px">
 
-<div class="card">
-  <h2>🍕 Produtos</h2>
-  <input id="prodName">
-  <input id="prodDesc">
-  <input id="prodPrice">
-  <select id="prodCat"></select>
-  <input type="file" id="prodImage">
-  <label><input type="checkbox" id="prodBest"> ⭐ Mais pedido</label>
-  <button class="btn" onclick="addProduct()">Adicionar produto</button>
-  <div id="productList"></div>
-</div>
+  <h2>⚙️ Painel Admin</h2>
 
-<div class="card">
-  <h2>➕ Adicionais</h2>
-  <input id="extraName">
-  <input id="extraPrice" type="number" step="0.01">
-  <button class="btn-outline" onclick="addExtra()">Adicionar</button>
-  <div id="extraList"></div>
-</div>
+  <!-- ================= LOJA ================= -->
+  <h3>🏪 Dados da Loja</h3>
 
-<div class="card">
-  <h2>🔥 Promoção</h2>
-  <input id="promoDesc">
-  <input id="promoPrice">
-  <input type="file" id="promoImage">
-  <input id="promoTime">
-  <button class="btn" onclick="savePromo()">Salvar promo</button>
-</div>
+  <input id="storeName" placeholder="Nome da loja">
+  <input id="storePhone" placeholder="WhatsApp (ex: 5562993343622)">
 
-<div class="card">
-  <h2>📦 Backup</h2>
-  <button class="btn-outline" onclick="exportJSON()">Exportar</button>
-  <input type="file" id="importFile">
-  <button class="btn-outline" onclick="importJSON()">Importar</button>
-</div>
+  <button class="btn btn-green" onclick="saveStore()">
+    Salvar Loja
+  </button>
 
-<button class="btn-red" onclick="logout()">Sair</button>
-</div>
-</div>
+  <hr>
 
+  <!-- ================= CATEGORIAS ================= -->
+  <h3>📂 Categorias</h3>
+
+  <input id="catName" placeholder="Nova categoria">
+  <button class="btn btn-green" onclick="addCategory()">Adicionar</button>
+
+  <div id="catList" style="margin-top:10px"></div>
+
+  <hr>
+
+  <!-- ================= PRODUTOS ================= -->
+  <h3>🍕 Produtos</h3>
+
+  <input id="prodName" placeholder="Nome do produto">
+  <input id="prodDesc" placeholder="Descrição">
+  <input id="prodPrice" type="number" placeholder="Preço">
+  <select id="prodCat" aria-label="Categoria do produto"></select>
+  <input id="prodFlavors" type="number" placeholder="Máx sabores (ex: 2)">
+  <input id="prodImage" type="file">
+
+  <label style="display:block;margin:8px 0">
+    <input type="checkbox" id="prodBest">
+    Mais pedido
+  </label>
+
+  <button class="btn btn-green" onclick="addProduct()">
+    Adicionar Produto
+  </button>
+
+  <div id="productList" style="margin-top:12px"></div>
+
+  <hr>
+
+  <!-- ================= ADICIONAIS ================= -->
+  <h3>➕ Adicionais</h3>
+
+  <input id="extraName" placeholder="Nome do adicional">
+  <input id="extraPrice" type="number" placeholder="Preço">
+
+  <button class="btn btn-green" onclick="addExtra()">
+    Adicionar
+  </button>
+
+  <div id="extraList" style="margin-top:10px"></div>
+
+  <hr>
+
+  <!-- ================= BORDAS ================= -->
+  <h3>🥖 Bordas</h3>
+
+  <input id="borderName" placeholder="Nome da borda">
+  <input id="borderPrice" type="number" placeholder="Preço">
+
+  <button class="btn btn-green" onclick="addBorder()">
+    Adicionar
+  </button>
+
+  <div id="borderList" style="margin-top:10px"></div>
+
+  <hr>
+
+  <!-- ================= PROMO ================= -->
+  <h3>🔥 Promoção</h3>
+
+  <input id="promoDesc" placeholder="Descrição da promoção">
+  <input id="promoPrice" type="number" placeholder="Preço">
+  <input id="promoImage" type="file">
+
+  <button class="btn btn-green" onclick="savePromo()">
+    Salvar Promoção
+  </button>
+
+  <hr>
+
+  <button class="btn btn-ghost" onclick="logout()">
+    Sair
+  </button>
+
+</section>
+
+<!-- ================= SCRIPT ================= -->
+<!-- Script local para login + inicialização segura -->
 <script>
-const KEY="pizzaria-data";
-const DB=()=>JSON.parse(localStorage.getItem(KEY)||"{}");
-const SAVE=d=>localStorage.setItem(KEY,JSON.stringify(d));
+  (function(){
+    const USER = "admin";
+    const PASS = "123456";
 
-function login(){loginDiv.classList.add("hidden");admin.classList.remove("hidden");load()}
-function logout(){location.reload()}
+    // Ao carregar o DOM, liga o handler do botão de login
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn = document.getElementById("btnLogin");
+      if (!btn) return;
 
-function load(){
-  const d=DB();
-  storeName.value=d.store?.name||"";
-  storePhone.value=d.store?.phone||"";
-  renderCategories();
-  renderProducts();
-  renderExtras();
-}
+      btn.addEventListener("click", () => {
+        const u = (document.getElementById("loginUser")?.value || "").trim();
+        const p = (document.getElementById("loginPass")?.value || "").trim();
 
-function saveStore(){
-  const d=DB();
-  d.store={name:storeName.value,phone:storePhone.value};
-  SAVE(d);alert("Salvo");
-}
+        if (u === USER && p === PASS) {
+          // mostra painel admin
+          const loginSection = document.getElementById("login");
+          const adminSection = document.getElementById("admin");
+          if (loginSection) loginSection.classList.add("hidden");
+          if (adminSection) adminSection.classList.remove("hidden");
 
-function addCategory(){
-  if(!catName.value)return alert("Digite a categoria");
-  const d=DB();
-  d.categories=d.categories||[];
-  d.categories.push(catName.value.trim());
-  SAVE(d);catName.value="";renderCategories();
-}
+          // chama loadAdmin se a função existir no admin.js
+          setTimeout(() => {
+            if (typeof loadAdmin === "function") {
+              try { loadAdmin(); } catch (e) { console.warn("loadAdmin error:", e); }
+            }
+          }, 50);
+        } else {
+          alert("Login inválido");
+        }
+      });
 
-function renderCategories(){
-  const d=DB();
-  catList.innerHTML="";prodCat.innerHTML="";
-  (d.categories||[]).forEach(c=>{
-    catList.innerHTML+=`<p>${c}</p>`;
-    prodCat.innerHTML+=`<option>${c}</option>`;
-  });
-}
-
-function addProduct(){
-  if(!prodName.value||!prodPrice.value||!prodCat.value||!prodImage.files[0])
-    return alert("Preencha tudo");
-
-  const d=DB();d.products=d.products||[];
-  const r=new FileReader();
-  r.onload=()=>{
-    d.products.push({
-      id:Date.now(),
-      name:prodName.value,
-      desc:prodDesc.value,
-      price:+prodPrice.value,
-      category:prodCat.value,
-      image:r.result,
-      best:prodBest.checked
+      // também permitir Enter no campo senha
+      const passInput = document.getElementById("loginPass");
+      if (passInput) {
+        passInput.addEventListener("keydown", (ev) => {
+          if (ev.key === "Enter") {
+            ev.preventDefault();
+            btn.click();
+          }
+        });
+      }
     });
-    SAVE(d);renderProducts();alert("Produto adicionado");
-  };
-  r.readAsDataURL(prodImage.files[0]);
-}
-
-function renderProducts(){
-  const d=DB();productList.innerHTML="";
-  (d.products||[]).forEach(p=>{
-    productList.innerHTML+=`<p>${p.name} — R$ ${p.price.toFixed(2)}</p>`;
-  });
-}
-
-function addExtra(){
-  const d=DB();d.extras=d.extras||[];
-  d.extras.push({id:Date.now(),name:extraName.value,price:+extraPrice.value,active:true});
-  SAVE(d);extraName.value="";extraPrice.value="";renderExtras();
-}
-
-function renderExtras(){
-  const d=DB();extraList.innerHTML="";
-  (d.extras||[]).forEach(e=>{
-    extraList.innerHTML+=`
-      <div class="extra-item">
-        <strong>${e.name}</strong>
-        <label><input type="checkbox" ${e.active?"checked":""}
-        onchange="toggleExtra(${e.id},this.checked)">Ativo</label>
-      </div>`;
-  });
-}
-
-function toggleExtra(id,v){
-  const d=DB();const e=d.extras.find(x=>x.id===id);
-  if(e){e.active=v;SAVE(d);}
-}
-
-function savePromo(){
-  const d=DB();
-  const r=new FileReader();
-  r.onload=()=>{
-    d.promo={active:true,description:promoDesc.value,price:+promoPrice.value,image:r.result,minutes:+promoTime.value,start:Date.now()};
-    SAVE(d);alert("Promo salva");
-  };
-  r.readAsDataURL(promoImage.files[0]);
-}
-
-function exportJSON(){
-  const b=new Blob([JSON.stringify(DB(),null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(b);
-  a.download="backup.json";a.click();
-}
-
-function importJSON(){
-  const r=new FileReader();
-  r.onload=()=>{localStorage.setItem(KEY,r.result);location.reload()};
-  r.readAsText(importFile.files[0]);
-}
-
-const loginDiv=document.getElementById("login");
-const admin=document.getElementById("admin");
+  })();
 </script>
+
+<!-- admin.js — seu código administrativo (mantive externo) -->
+<script src="admin.js" defer></script>
 
 </body>
 </html>
