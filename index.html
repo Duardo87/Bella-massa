@@ -9,23 +9,55 @@
 <body>
 
 <header class="header">
-  <h1 id="storeName">Carregando…</h1>
+  <h1 id="storeName">Bella Massa</h1>
   <a id="storePhone" target="_blank">WhatsApp</a>
 </header>
+
+<!-- PROMOÇÃO DO DIA -->
+<section id="promoBanner" class="promo hidden">
+  <h2 id="promoTitle"></h2>
+  <p id="promoDesc"></p>
+  <strong id="promoPrice"></strong>
+  <button id="promoBtn">🔥 Pedir promoção</button>
+</section>
 
 <nav id="categories" class="categories"></nav>
 <main id="products" class="products"></main>
 
 <button id="btnCart" class="btn-cart">🛒 Ver pedido</button>
-<aside id="cartBox" class="cart hidden"></aside>
 
-<!-- MODAL PRODUTO -->
+<aside id="cartBox" class="cart hidden">
+  <h3>Pedido</h3>
+  <div id="cartItems"></div>
+
+  <label>🏠 Endereço de entrega</label>
+  <textarea id="address" placeholder="Rua, número, bairro"></textarea>
+
+  <label>💳 Forma de pagamento</label>
+  <select id="payment">
+    <option value="">Selecione</option>
+    <option>Dinheiro</option>
+    <option>Pix</option>
+    <option>Cartão</option>
+  </select>
+
+  <label>💬 Observação</label>
+  <textarea id="obs" placeholder="Ex: sem cebola, troco para 100"></textarea>
+
+  <strong id="cartTotal"></strong>
+  <button onclick="sendWhats()">Enviar WhatsApp</button>
+</aside>
+
+<!-- MODAL ETAPAS (produtos normais) -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
-    <h2 id="modalTitle"></h2>
-    <div id="modalSteps"></div>
-    <button id="confirmProduct">Adicionar ao carrinho</button>
-    <button onclick="closeModal()">Cancelar</button>
+    <h3 id="stepTitle"></h3>
+    <div id="stepContent"></div>
+
+    <div class="step-actions">
+      <button id="prevStep">Voltar</button>
+      <button id="nextStep">Continuar</button>
+    </div>
   </div>
 </div>
 
