@@ -1,242 +1,100 @@
-/* =====================================================
-   RESET + VARIÁVEIS
-===================================================== */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+  background:#f4f4f4;
 }
 
-:root {
-  --primary: #b11212;
-  --primary-dark: #8b0000;
-  --green: #25d366;
-  --bg: #f4f4f4;
-  --card: #ffffff;
-  --text: #222;
-  --muted: #777;
-  --radius: 16px;
-  --shadow-soft: 0 6px 18px rgba(0,0,0,.12);
-  --shadow-strong: 0 10px 30px rgba(0,0,0,.25);
-}
-
-/* =====================================================
-   BASE
-===================================================== */
-html, body {
-  width: 100%;
-  min-height: 100vh;
-}
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* =====================================================
-   HEADER
-===================================================== */
-.site-header {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
-  padding: calc(12px + env(safe-area-inset-top)) 16px 16px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-/* =====================================================
-   CATEGORIAS
-===================================================== */
-.categories {
-  display: flex;
-  gap: 10px;
-  padding: 12px;
-  overflow-x: auto;
-  background: var(--card);
-}
-
-.categories button {
-  border: 2px solid var(--primary);
-  background: transparent;
-  color: var(--primary);
-  padding: 8px 16px;
-  border-radius: 999px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.categories button.active {
-  background: var(--primary);
-  color: #fff;
-}
-
-/* =====================================================
-   PRODUTOS
-===================================================== */
-.products-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  padding: 14px;
-}
-
-.product-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: var(--shadow-soft);
-}
-
-.product-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-/* =====================================================
-   BOTÕES
-===================================================== */
-.btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 14px;
-  font-size: 16px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-green {
-  background: var(--green);
-  color: #fff;
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid #ddd;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* =====================================================
-   MODAL
-===================================================== */
-.promo-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.promo-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  width: 100%;
-  max-width: 420px;
-  padding: 16px;
-  box-shadow: var(--shadow-strong);
-}
-
-/* =====================================================
-   CARRINHO
-===================================================== */
-.cart {
-  position: fixed;
-  bottom: 80px;
-  right: 16px;
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 14px;
-  width: 320px;
-  max-width: calc(100% - 32px);
-  box-shadow: var(--shadow-strong);
-  z-index: 1200;
-}
-
-.whats-float {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  background: var(--green);
-  color: #fff;
-  padding: 14px 18px;
-  border-radius: 999px;
-  font-weight: 700;
-  box-shadow: var(--shadow-soft);
-  z-index: 1300;
-}
-
-/* =====================================================
-   FORMULÁRIOS (SITE + ADMIN)
-===================================================== */
-input,
-select,
-textarea {
-  width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
-  font-size: 15px;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-
-/* =====================================================
-   ADMIN
-===================================================== */
-.admin-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 18px;
-  box-shadow: var(--shadow-soft);
-}
-
-.admin-card h3 {
-  margin-top: 0;
-}
-
-/* =====================================================
-   UTIL
-===================================================== */
-.hidden {
-  display: none !important;
-}
-
-/* =====================================================
-   DESKTOP
-===================================================== */
-@media (min-width: 768px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}.row{
+.header{
+  background:linear-gradient(135deg,#b11212,#8b0000);
+  color:#fff;
+  padding:16px;
+  position:sticky;
+  top:0;
+  z-index:10;
   display:flex;
-  gap:6px;
-  margin-bottom:6px;
+  justify-content:space-between;
+  align-items:center;
 }
-.row input{
-  flex:1;
+
+.categories{
+  display:flex;
+  gap:10px;
+  padding:12px;
+  overflow-x:auto;
+  background:#fff;
 }
-.row button{
-  padding:6px 8px;
-}.row{display:flex;gap:6px;margin-bottom:6px}
-input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd}
-button{padding:10px;border-radius:8px}
+
+.categories button{
+  border:2px solid #b11212;
+  background:none;
+  color:#b11212;
+  padding:8px 16px;
+  border-radius:999px;
+  font-weight:700;
+}
+
+.categories button.active{
+  background:#b11212;
+  color:#fff;
+}
+
+.products{
+  padding:14px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:14px;
+}
+
+.product-card{
+  background:#fff;
+  border-radius:14px;
+  padding:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
+}
+
+.product-card img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  border-radius:12px;
+}
+
+.cart{
+  position:fixed;
+  bottom:80px;
+  right:16px;
+  background:#fff;
+  width:320px;
+  max-width:calc(100% - 32px);
+  padding:14px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  z-index:20;
+}
+
+.hidden{display:none}
+
+.whats-float{
+  position:fixed;
+  bottom:16px;
+  right:16px;
+  background:#25d366;
+  color:#fff;
+  padding:14px 18px;
+  border-radius:999px;
+  font-weight:700;
+  z-index:30;
+}
+
+.btn-cart{
+  position:fixed;
+  bottom:16px;
+  left:16px;
+  padding:14px 18px;
+  border-radius:999px;
+  background:#000;
+  color:#fff;
+  z-index:30;
+}

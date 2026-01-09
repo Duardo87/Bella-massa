@@ -4,59 +4,27 @@
   <meta charset="UTF-8">
   <title>Cardápio Online</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
-  <div class="header-left">
-    <h1 id="store-name">Carregando...</h1>
-  </div>
-
-  <div class="header-right">
-    <a id="store-phone" href="#" target="_blank">WhatsApp</a>
-  </div>
+  <h1 id="storeName">Carregando...</h1>
+  <a id="storePhone" target="_blank">WhatsApp</a>
 </header>
 
-<!-- PROMOÇÃO (modal é criado via JS) -->
+<section id="reviews" class="hidden"></section>
 
-<!-- CATEGORIAS -->
 <nav id="categories" class="categories"></nav>
 
-<!-- PRODUTOS -->
 <main id="products" class="products"></main>
 
-<!-- BOTÃO CARRINHO -->
-<button id="btn-cart" class="btn-cart" aria-expanded="false">
-  🛒 Ver pedido
-</button>
+<button id="btnCart" class="btn-cart">🛒 Ver pedido</button>
 
-<!-- CARRINHO -->
-<aside id="cart" class="cart hidden" aria-hidden="true"></aside>
+<aside id="cartBox" class="cart hidden"></aside>
 
-<!-- SCRIPT DO APP -->
+<a id="whatsFloat" class="whats-float" target="_blank">💬 Pedir no WhatsApp</a>
+
 <script src="app.js"></script>
-
-<!-- SCRIPT AUXILIAR (TOGGLE DO CARRINHO) -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-
-    const btnCart = document.getElementById("btn-cart");
-    const cart = document.getElementById("cart");
-
-    if (btnCart && cart) {
-      btnCart.addEventListener("click", () => {
-        const isHidden = cart.classList.toggle("hidden");
-
-        btnCart.setAttribute("aria-expanded", String(!isHidden));
-        cart.setAttribute("aria-hidden", String(isHidden));
-      });
-    }
-
-  });
-</script>
-
 </body>
 </html>
