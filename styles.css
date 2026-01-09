@@ -265,3 +265,35 @@ body{
 .hidden{
   display: none;
 }
+.badge {
+  background: #ff9800;
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.reviews {
+  padding: 16px;
+  background: #fff;
+}
+
+.review {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.review img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.review strong {
+  display: block;
+}

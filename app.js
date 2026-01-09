@@ -23,25 +23,26 @@ async function loadData(){
 document.addEventListener("DOMContentLoaded", async () => {
   data = await loadData();
 
-  // Header / Whats
   if ($("storePhone")) $("storePhone").href = `https://wa.me/${data.store.phone}`;
   if ($("whatsFloat")) $("whatsFloat").href = `https://wa.me/${data.store.phone}`;
   if ($("btnCart")) $("btnCart").onclick = () => toggleCart();
 
-  // Promo do dia (ALINHADO COM ADMIN: promoWeek)
   loadPromo();
-
-  // Categorias / Produtos
   renderCategories();
+  renderReviews();
+
+  if (data && data.store && $("storeName")) {
+    $("storeName").textContent = data.store.name;
+  }
 });
 
 /* ==================================================
-   PROMOÇÃO DO DIA (promoWeek)
+   PROMOÇÃO DO DIA
 ================================================== */
 function loadPromo(){
   if (!data.promoWeek) return;
 
-  const today = new Date().getDay(); // 0 dom ... 6 sáb
+  const today = new Date().getDay();
   const promo = data.promoWeek[today];
   if (!promo || !promo.active) return;
 
@@ -70,14 +71,17 @@ function renderCategories(){
   $("categories").innerHTML = "";
   cats.forEach((c,i)=>{
     $("categories").innerHTML +=
-      `<button class="${i===0?'active':''}" onclick="renderProducts(${c.id},this)">${c.name}</button>`;
+      `<button class="${i===0?'active':''}" onclick="renderProducts(${c.id},this)">
+        ${c.name}
+      </button>`;
   });
 
   if (cats.length) renderProducts(cats[0].id);
 }
 
 function renderProducts(catId, btn){
-  document.querySelectorAll(".categories button").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".categories button")
+    .forEach(b=>b.classList.remove("active"));
   if (btn) btn.classList.add("active");
 
   $("products").innerHTML = "";
@@ -86,16 +90,19 @@ function renderProducts(catId, btn){
     .forEach(p=>{
       $("products").innerHTML += `
         <div class="product-card">
-          ${p.image ? `<img src="${p.image}">` : ""}
+          ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
+          ${p.image ? `<img src="${p.image}" loading="lazy">` : ""}
           <h3>${p.name}</h3>
           <p>${p.desc || ""}</p>
-          <button onclick="startOrder(${p.id})">Escolher</button>
+          <button onclick="startOrder(${p.id}); fbEvent('ViewContent')">
+            Escolher
+          </button>
         </div>`;
     });
 }
 
 /* ==================================================
-   WIZARD (ETAPA POR ETAPA)
+   WIZARD
 ================================================== */
 function startOrder(id){
   currentProduct = data.products.find(p=>p.id===id);
@@ -120,7 +127,10 @@ function stepSize(){
   $("stepTitle").textContent = "📏 Tamanho";
   let html = "";
   Object.entries(currentProduct.prices || {}).forEach(([k,v])=>{
-    html += `<label><input type="radio" name="size" value="${k}" data-price="${v}"> ${k} - R$ ${v}</label><br>`;
+    html += `<label>
+      <input type="radio" name="size" value="${k}" data-price="${v}">
+      ${k} - R$ ${v}
+    </label><br>`;
   });
   $("stepContent").innerHTML = html;
 }
@@ -131,7 +141,7 @@ function stepFlavors(){
   }
   $("stepTitle").textContent = `🍕 Escolha até ${currentProduct.maxFlavors} sabores`;
   let html = "";
-  (data.products || [])
+  data.products
     .filter(p => p.categoryId === currentProduct.categoryId && p.prices)
     .forEach(p=>{
       html += `<label>
@@ -271,5 +281,32 @@ function sendWhats(){
   msg += `💳 *Pagamento:* ${payment}%0A`;
   if (obs) msg += `💬 *Obs:* ${obs}%0A`;
 
+  fbEvent('Lead');
   window.open(`https://wa.me/${data.store.phone}?text=${msg}`);
+}
+
+/* ==================================================
+   META EVENT
+================================================== */
+function fbEvent(name){
+  if (window && window.fbq) {
+    try { fbq('track', name); } catch(e){}
+  }
+}
+
+/* ==================================================
+   REVIEWS
+================================================== */
+function renderReviews(){
+  if (!data.reviews) return;
+  $("reviews").innerHTML = data.reviews.map(r=>`
+    <div class="review">
+      <img src="${r.photo}">
+      <div>
+        <strong>${r.name}</strong>
+        ⭐⭐⭐⭐⭐
+        <p>${r.text}</p>
+      </div>
+    </div>
+  `).join("");
 }
