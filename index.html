@@ -2,26 +2,32 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Cardápio Online</title>
+  <title>Bella Massa Pizzaria</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header class="header">
-  <h1 id="storeName">Carregando...</h1>
+  <h1 id="storeName">Carregando…</h1>
   <a id="storePhone" target="_blank">WhatsApp</a>
 </header>
 
-<section id="reviews" class="hidden"></section>
-
 <nav id="categories" class="categories"></nav>
-
 <main id="products" class="products"></main>
 
 <button id="btnCart" class="btn-cart">🛒 Ver pedido</button>
-
 <aside id="cartBox" class="cart hidden"></aside>
+
+<!-- MODAL PRODUTO -->
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <h2 id="modalTitle"></h2>
+    <div id="modalSteps"></div>
+    <button id="confirmProduct">Adicionar ao carrinho</button>
+    <button onclick="closeModal()">Cancelar</button>
+  </div>
+</div>
 
 <a id="whatsFloat" class="whats-float" target="_blank">💬 Pedir no WhatsApp</a>
 
