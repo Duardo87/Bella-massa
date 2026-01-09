@@ -40,29 +40,41 @@ function renderCategories(){
   if(cats.length) renderProducts(cats[0].id);
 }
 
-function renderProducts(catId,btn){
-  document.querySelectorAll(".categories button").forEach(b=>b.classList.remove("active"));
+function renderProducts(catId, btn){
+  document.querySelectorAll(".categories button")
+    .forEach(b => b.classList.remove("active"));
   if(btn) btn.classList.add("active");
 
   $("products").innerHTML = "";
 
   data.products
-    .filter(p=>p.active && p.categoryId===catId)
-    .sort((a,b)=>a.order-b.order)
-    .forEach(p=>{
-      const price = p.prices?.G ?? p.prices?.M ?? p.prices?.P ?? null;
+    .filter(p => p.active && p.categoryId === catId)
+    .sort((a,b) => a.order - b.order)
+    .forEach(p => {
+
+      // ✅ SUPORTE A price E prices
+      let price = null;
+
+      if (typeof p.price === "number") {
+        price = p.price;
+      } else if (p.prices) {
+        price = p.prices.G ?? p.prices.M ?? p.prices.P ?? null;
+      }
+
       const disabled = price === null;
 
       $("products").innerHTML += `
         <div class="product-card">
-          ${p.image?`<img src="${p.image}">`:""}
-          <h3>${p.name} ${p.featured?"🔥 Mais Pedido":""}</h3>
-          <p>${p.desc||""}</p>
-          <button ${disabled?"disabled":""}
-            onclick="addCart('${p.name}',${price})">
-            ${disabled?"Indisponível":"Adicionar"}
+          ${p.image ? `<img src="${p.image}">` : ""}
+          <h3>${p.name} ${p.featured ? "🔥 Mais Pedido" : ""}</h3>
+          <p>${p.desc || ""}</p>
+          <button 
+            ${disabled ? "disabled" : ""}
+            onclick="addCart('${p.name}', ${price})">
+            ${disabled ? "Indisponível" : "Adicionar"}
           </button>
-        </div>`;
+        </div>
+      `;
     });
 }
 
