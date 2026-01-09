@@ -1,0 +1,249 @@
+{
+  "store": {
+    "name": "Bella Massa Pizzaria",
+    "phone": "5562993343622",
+    "open": "18:00",
+    "close": "23:30"
+  },
+
+  "categories": [
+    { "id": 1, "name": "🍕 Pizzas Tradicionais", "active": true, "order": 1 },
+    { "id": 2, "name": "⭐ Sabores Premium da Casa", "active": true, "order": 2 },
+    { "id": 3, "name": "🍫 Pizzas Doces", "active": true, "order": 3 },
+    { "id": 4, "name": "🔥 Combo do Dia", "active": true, "order": 4 },
+    { "id": 5, "name": "🥤 Bebidas", "active": true, "order": 5 },
+    { "id": 6, "name": "🍨 Cremes & Sucos", "active": true, "order": 6 }
+  ],
+
+  "products": [
+    {
+      "id": 101,
+      "categoryId": 1,
+      "name": "Frango com Catupiry",
+      "desc": "Molho de tomate, mussarela, frango desfiado e catupiry",
+      "prices": { "P": 35, "M": 45, "G": 55 },
+      "active": true,
+      "order": 1
+    },
+    {
+      "id": 102,
+      "categoryId": 1,
+      "name": "A Moda da Casa",
+      "desc": "Molho de tomate, mussarela, presunto, calabresa, ovos e cebola",
+      "prices": { "P": 35, "M": 45, "G": 55 },
+      "active": true,
+      "order": 2
+    },
+    {
+      "id": 103,
+      "categoryId": 1,
+      "name": "Strogonoff de Frango",
+      "desc": "Molho especial de strogonoff, frango e mussarela",
+      "prices": { "P": 35, "M": 45, "G": 55 },
+      "active": true,
+      "order": 3
+    },
+    {
+      "id": 104,
+      "categoryId": 1,
+      "name": "Portuguesa",
+      "desc": "Molho de tomate, mussarela, presunto, ovos, cebola e azeitona",
+      "prices": { "P": 35, "M": 45, "G": 55 },
+      "active": true,
+      "order": 4
+    },
+    {
+      "id": 105,
+      "categoryId": 1,
+      "name": "Quatro Queijos",
+      "desc": "Mussarela, catupiry, cheddar e parmesão",
+      "prices": { "P": 35, "M": 45, "G": 55 },
+      "active": true,
+      "order": 5
+    },
+    {
+      "id": 106,
+      "categoryId": 1,
+      "name": "Calabresa Tradicional",
+      "desc": "Molho de tomate, mussarela, calabresa fatiada e cebola",
+      "prices": { "P": 35, "M": 45, "G": 55 },
+      "active": true,
+      "order": 6
+    },
+    {
+      "id": 107,
+      "categoryId": 1,
+      "name": "Pizza 4 Sabores Tradicionais",
+      "desc": "Escolha até 4 sabores tradicionais",
+      "prices": { "P": 35, "M": 45, "G": 55 },
+      "active": true,
+      "order": 7
+    },
+
+    {
+      "id": 201,
+      "categoryId": 2,
+      "name": "Carne Seca com Catupiry",
+      "desc": "Carne seca desfiada, mussarela e catupiry cremoso",
+      "prices": { "P": 40, "M": 50, "G": 60 },
+      "active": true,
+      "order": 1
+    },
+    {
+      "id": 202,
+      "categoryId": 2,
+      "name": "Frango com Bacon",
+      "desc": "Frango desfiado, bacon crocante e mussarela",
+      "prices": { "P": 40, "M": 50, "G": 60 },
+      "active": true,
+      "order": 2
+    },
+    {
+      "id": 203,
+      "categoryId": 2,
+      "name": "Bacon Especial",
+      "desc": "Mussarela e bacon crocante selecionado",
+      "prices": { "P": 40, "M": 50, "G": 60 },
+      "active": true,
+      "order": 3
+    },
+
+    {
+      "id": 301,
+      "categoryId": 3,
+      "name": "Ninho com Nutella",
+      "desc": "Creme de leite ninho com Nutella",
+      "prices": { "P": 40, "M": 50, "G": 60 },
+      "active": true,
+      "order": 1
+    },
+    {
+      "id": 302,
+      "categoryId": 3,
+      "name": "Chocolate com M&M's",
+      "desc": "Chocolate cremoso com M&M's",
+      "prices": { "P": 40, "M": 50, "G": 60 },
+      "active": true,
+      "order": 2
+    },
+    {
+      "id": 303,
+      "categoryId": 3,
+      "name": "Chocolate com Bis",
+      "desc": "Chocolate ao leite com Bis crocante",
+      "prices": { "P": 40, "M": 50, "G": 60 },
+      "active": true,
+      "order": 3
+    },
+    {
+      "id": 304,
+      "categoryId": 3,
+      "name": "Chocolate com Banana",
+      "desc": "Chocolate ao leite com banana fatiada",
+      "prices": { "P": 40, "M": 50, "G": 60 },
+      "active": true,
+      "order": 4
+    },
+
+    {
+      "id": 501,
+      "categoryId": 5,
+      "name": "Refrigerante 2L",
+      "desc": "Coca-Cola, Guaraná ou similar",
+      "price": 12,
+      "active": true,
+      "order": 1
+    },
+    {
+      "id": 502,
+      "categoryId": 5,
+      "name": "Refrigerante Lata",
+      "desc": "350ml",
+      "price": 6,
+      "active": true,
+      "order": 2
+    },
+
+    {
+      "id": 601,
+      "categoryId": 6,
+      "name": "Creme de Maracujá",
+      "desc": "Creme gelado artesanal",
+      "price": 18,
+      "active": true,
+      "order": 1
+    },
+    {
+      "id": 602,
+      "categoryId": 6,
+      "name": "Creme de Morango",
+      "desc": "Creme gelado artesanal",
+      "price": 15,
+      "active": true,
+      "order": 2
+    },
+    {
+      "id": 603,
+      "categoryId": 6,
+      "name": "Creme de Cupuaçu",
+      "desc": "Creme gelado artesanal",
+      "price": 15,
+      "active": true,
+      "order": 3
+    },
+    {
+      "id": 604,
+      "categoryId": 6,
+      "name": "Suco de Morango",
+      "desc": "Suco natural",
+      "price": 13,
+      "active": true,
+      "order": 4
+    },
+    {
+      "id": 605,
+      "categoryId": 6,
+      "name": "Suco de Maracujá",
+      "desc": "Suco natural",
+      "price": 15,
+      "active": true,
+      "order": 5
+    },
+    {
+      "id": 606,
+      "categoryId": 6,
+      "name": "Suco de Cupuaçu",
+      "desc": "Suco natural",
+      "price": 13,
+      "active": true,
+      "order": 6
+    }
+  ],
+
+  "borders": [
+    { "id": 1, "name": "Borda de Mussarela", "price": 12 },
+    { "id": 2, "name": "Borda de Cheddar", "price": 10 },
+    { "id": 3, "name": "Borda de Catupiry", "price": 10 },
+    { "id": 4, "name": "Borda de Chocolate", "price": 12 }
+  ],
+
+  "extras": [
+    { "id": 1, "name": "Bacon Extra", "price": 10 },
+    { "id": 2, "name": "Mussarela Extra", "price": 10 },
+    { "id": 3, "name": "Carne Seca Extra", "price": 10 },
+    { "id": 4, "name": "Calabresa Extra", "price": 6 },
+    { "id": 5, "name": "Catupiry Extra", "price": 6 },
+    { "id": 6, "name": "Cheddar Extra", "price": 6 },
+    { "id": 7, "name": "Chocolate Extra", "price": 10 }
+  ],
+
+  "promoWeek": {
+    "1": { "active": true, "title": "🍕 Combo Segunda Perfeita", "desc": "Pizza Tradicional Média + 1 Suco", "price": 49.9 },
+    "2": { "active": true, "title": "🍗 Combo Terça da Casa", "desc": "Frango com Catupiry Média + Refrigerante", "price": 52.9 },
+    "3": { "active": true, "title": "🧀 Combo Quarta em Dobro", "desc": "Pizza Tradicional Grande + Borda", "price": 64.9 },
+    "4": { "active": true, "title": "🥓 Combo Quinta Premium", "desc": "Pizza Premium Média + Borda", "price": 59.9 },
+    "5": { "active": true, "title": "🔥 Sextou Bella Massa", "desc": "Pizza Tradicional Grande + Refrigerante 2L", "price": 69.9 },
+    "6": { "active": true, "title": "🍫 Combo Sábado Completo", "desc": "Pizza Tradicional Média + Pizza Doce Pequena", "price": 69.9 },
+    "0": { "active": true, "title": "👨‍👩‍👧 Combo Família Bella Massa", "desc": "Pizza Tradicional Grande + Pizza Doce Pequena + Refrigerante 2L", "price": 79.9 }
+  }
+} 

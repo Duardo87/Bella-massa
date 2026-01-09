@@ -1,84 +1,62 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <title>Bella Massa • Cardápio</title>
+  <meta charset="UTF-8">
+  <title>Cardápio Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- VIEWPORT IOS SAFE -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-  <!-- ================= HEADER ================= -->
-  <header class="site-header" role="banner">
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div>
-        <h1 id="store-name" style="margin:0;font-size:20px">Bella Massa</h1>
-        <small style="opacity:.9">🍕 Visual premium • Pedidos rápidos</small>
-      </div>
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <h1 id="store-name">Carregando...</h1>
+  </div>
 
-      <!-- href será atualizado pelo app.js; rel por segurança -->
-      <a id="store-phone" href="#" target="_blank" rel="noopener noreferrer" class="btn-ghost" aria-label="Pedir pelo WhatsApp">
-        📞 Pedir no WhatsApp
-      </a>
-    </div>
-  </header>
+  <div class="header-right">
+    <a id="store-phone" href="#" target="_blank">WhatsApp</a>
+  </div>
+</header>
 
-  <!-- ================= CATEGORIAS ================= -->
-  <nav id="categories" class="categories" aria-label="Categorias" role="navigation"></nav>
+<!-- PROMOÇÃO (modal é criado via JS) -->
 
-  <!-- ================= PRODUTOS ================= -->
-  <main id="products" class="products-grid" role="main" aria-live="polite"></main>
+<!-- CATEGORIAS -->
+<nav id="categories" class="categories"></nav>
 
-  <!-- ================= CARRINHO ================= -->
-  <aside id="cart" class="cart hidden" aria-label="Carrinho" aria-hidden="true">
-    <!-- preenchido pelo app.js -->
-  </aside>
+<!-- PRODUTOS -->
+<main id="products" class="products"></main>
 
-  <!-- ================= BOTÃO FLUTUANTE ================= -->
-  <button id="btn-cart" class="whats-float" type="button" aria-controls="cart" aria-expanded="false" aria-label="Ver pedido">
-    🟢 Ver pedido
-  </button>
+<!-- BOTÃO CARRINHO -->
+<button id="btn-cart" class="btn-cart" aria-expanded="false">
+  🛒 Ver pedido
+</button>
 
-  <!-- ================= MODAIS ================= -->
-  <div id="modal-root" aria-hidden="true"></div>
+<!-- CARRINHO -->
+<aside id="cart" class="cart hidden" aria-hidden="true"></aside>
 
-  <!-- ================= APP (DEFER evita problemas de ordem) ================= -->
-  <script src="app.js" defer></script>
+<!-- SCRIPT DO APP -->
+<script src="app.js"></script>
 
-  <!-- ================= INIT SEGURO ================= -->
-  <script>
-    // inicialização segura: usa DOMContentLoaded (app.js carregado com defer)
-    document.addEventListener("DOMContentLoaded", () => {
-      // inicia o app público (se estiver disponível)
-      if (window.app && typeof window.app.renderPublic === "function") {
-        try { window.app.renderPublic(); } catch (err) { console.error("renderPublic error:", err); }
-      }
+<!-- SCRIPT AUXILIAR (TOGGLE DO CARRINHO) -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
 
-      // controle do carrinho com aria-expanded (acessibilidade)
-      const btnCart = document.getElementById("btn-cart");
-      const cart = document.getElementById("cart");
+    const btnCart = document.getElementById("btn-cart");
+    const cart = document.getElementById("cart");
 
-      if (btnCart && cart) {
-        btnCart.addEventListener("click", () => {
-          const isHidden = cart.classList.toggle("hidden");
-          // aria-expanded: true = aberto, false = fechado
-          btnCart.setAttribute("aria-expanded", String(!isHidden));
-          cart.setAttribute("aria-hidden", String(isHidden));
-        });
-      }
-    });
-  </script>
+    if (btnCart && cart) {
+      btnCart.addEventListener("click", () => {
+        const isHidden = cart.classList.toggle("hidden");
 
-  <noscript>
-    <div style="padding:12px;background:#fff3cd;color:#856404;text-align:center;">
-      JavaScript está desativado — o site precisa de JavaScript para funcionar corretamente.
-    </div>
-  </noscript>
+        btnCart.setAttribute("aria-expanded", String(!isHidden));
+        cart.setAttribute("aria-hidden", String(isHidden));
+      });
+    }
+
+  });
+</script>
 
 </body>
 </html>

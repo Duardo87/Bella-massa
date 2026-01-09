@@ -1,192 +1,79 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <title>Admin • Bella Massa</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- CSS -->
+  <meta charset="UTF-8">
+  <title>Admin • Cardápio</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-<!-- ================= LOGIN ================= -->
-<section id="login" style="padding:20px">
-  <h2>🔐 Login Admin</h2>
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>Login Admin</h2>
+  <input id="loginUser" placeholder="Usuário">
+  <input id="loginPass" type="password" placeholder="Senha">
+  <button onclick="loginAdmin()">Entrar</button>
+</div>
 
-  <input
-    id="loginUser"
-    placeholder="Usuário"
-    style="width:100%;padding:10px;margin-bottom:8px"
-    autocomplete="username"
-  >
+<!-- ADMIN -->
+<div id="admin" class="hidden">
 
-  <input
-    id="loginPass"
-    type="password"
-    placeholder="Senha"
-    style="width:100%;padding:10px;margin-bottom:12px"
-    autocomplete="current-password"
-  >
-
-  <!-- botão local — não usa onclick para evitar dependência com admin.js -->
-  <button id="btnLogin" class="btn btn-green" style="width:100%">
-    Entrar
-  </button>
-
-  <p style="margin-top:10px;font-size:13px;color:#666">
-    Use <strong>admin</strong> / <strong>123456</strong> (teste).
-  </p>
-</section>
-
-<!-- ================= ADMIN ================= -->
-<section id="admin" class="hidden" style="padding:20px">
-
-  <h2>⚙️ Painel Admin</h2>
-
-  <!-- ================= LOJA ================= -->
-  <h3>🏪 Dados da Loja</h3>
-
+  <h2>🏪 Dados da Loja</h2>
   <input id="storeName" placeholder="Nome da loja">
-  <input id="storePhone" placeholder="WhatsApp (ex: 5562993343622)">
-
-  <button class="btn btn-green" onclick="saveStore()">
-    Salvar Loja
-  </button>
+  <input id="storePhone" placeholder="WhatsApp">
+  <input id="openTime" type="time">
+  <input id="closeTime" type="time">
+  <button onclick="saveStore()">Salvar loja</button>
 
   <hr>
 
-  <!-- ================= CATEGORIAS ================= -->
-  <h3>📂 Categorias</h3>
-
+  <h2>📂 Categorias</h2>
   <input id="catName" placeholder="Nova categoria">
-  <button class="btn btn-green" onclick="addCategory()">Adicionar</button>
-
-  <div id="catList" style="margin-top:10px"></div>
+  <button onclick="addCategory()">Adicionar</button>
+  <div id="catList"></div>
 
   <hr>
 
-  <!-- ================= PRODUTOS ================= -->
-  <h3>🍕 Produtos</h3>
-
+  <h2>🍕 Produtos</h2>
   <input id="prodName" placeholder="Nome do produto">
   <input id="prodDesc" placeholder="Descrição">
-  <input id="prodPrice" type="number" placeholder="Preço">
-  <select id="prodCat" aria-label="Categoria do produto"></select>
-  <input id="prodFlavors" type="number" placeholder="Máx sabores (ex: 2)">
-  <input id="prodImage" type="file">
+  <select id="prodCat"></select>
 
-  <label style="display:block;margin:8px 0">
-    <input type="checkbox" id="prodBest">
-    Mais pedido
-  </label>
+  <input id="priceP" placeholder="Preço P">
+  <input id="priceM" placeholder="Preço M">
+  <input id="priceG" placeholder="Preço G">
 
-  <button class="btn btn-green" onclick="addProduct()">
-    Adicionar Produto
-  </button>
+  <input id="prodFlavors" placeholder="Máx sabores">
+  <input id="prodImage" type="file" accept="image/*">
 
-  <div id="productList" style="margin-top:12px"></div>
+  <button onclick="addProduct()">Adicionar produto</button>
+  <div id="productList"></div>
 
   <hr>
 
-  <!-- ================= ADICIONAIS ================= -->
-  <h3>➕ Adicionais</h3>
-
-  <input id="extraName" placeholder="Nome do adicional">
-  <input id="extraPrice" type="number" placeholder="Preço">
-
-  <button class="btn btn-green" onclick="addExtra()">
-    Adicionar
-  </button>
-
-  <div id="extraList" style="margin-top:10px"></div>
+  <h2>➕ Adicionais</h2>
+  <input id="extraName" placeholder="Nome">
+  <input id="extraPrice" placeholder="Preço">
+  <button onclick="addExtra()">Adicionar</button>
+  <div id="extraList"></div>
 
   <hr>
 
-  <!-- ================= BORDAS ================= -->
-  <h3>🥖 Bordas</h3>
-
-  <input id="borderName" placeholder="Nome da borda">
-  <input id="borderPrice" type="number" placeholder="Preço">
-
-  <button class="btn btn-green" onclick="addBorder()">
-    Adicionar
-  </button>
-
-  <div id="borderList" style="margin-top:10px"></div>
+  <h2>🥖 Bordas</h2>
+  <input id="borderName" placeholder="Nome">
+  <input id="borderPrice" placeholder="Preço">
+  <button onclick="addBorder()">Adicionar</button>
+  <div id="borderList"></div>
 
   <hr>
-
-  <!-- ================= PROMO ================= -->
-  <h3>🔥 Promoção</h3>
-
-  <input id="promoDesc" placeholder="Descrição da promoção">
-  <input id="promoPrice" type="number" placeholder="Preço">
-  <input id="promoImage" type="file">
-
-  <button class="btn btn-green" onclick="savePromo()">
-    Salvar Promoção
-  </button>
-
+<h2>🔥 Promoção por Dia da Semana</h2>
+<div id="promoWeek"></div>
   <hr>
 
-  <button class="btn btn-ghost" onclick="logout()">
-    Sair
-  </button>
+  <button onclick="exportAppJSON()">⬇ Exportar app.json</button>
 
-</section>
+</div>
 
-<!-- ================= SCRIPT ================= -->
-<!-- Script local para login + inicialização segura -->
-<script>
-  (function(){
-    const USER = "admin";
-    const PASS = "123456";
-
-    // Ao carregar o DOM, liga o handler do botão de login
-    document.addEventListener("DOMContentLoaded", () => {
-      const btn = document.getElementById("btnLogin");
-      if (!btn) return;
-
-      btn.addEventListener("click", () => {
-        const u = (document.getElementById("loginUser")?.value || "").trim();
-        const p = (document.getElementById("loginPass")?.value || "").trim();
-
-        if (u === USER && p === PASS) {
-          // mostra painel admin
-          const loginSection = document.getElementById("login");
-          const adminSection = document.getElementById("admin");
-          if (loginSection) loginSection.classList.add("hidden");
-          if (adminSection) adminSection.classList.remove("hidden");
-
-          // chama loadAdmin se a função existir no admin.js
-          setTimeout(() => {
-            if (typeof loadAdmin === "function") {
-              try { loadAdmin(); } catch (e) { console.warn("loadAdmin error:", e); }
-            }
-          }, 50);
-        } else {
-          alert("Login inválido");
-        }
-      });
-
-      // também permitir Enter no campo senha
-      const passInput = document.getElementById("loginPass");
-      if (passInput) {
-        passInput.addEventListener("keydown", (ev) => {
-          if (ev.key === "Enter") {
-            ev.preventDefault();
-            btn.click();
-          }
-        });
-      }
-    });
-  })();
-</script>
-
-<!-- admin.js — seu código administrativo (mantive externo) -->
-<script src="admin.js" defer></script>
-
+<script src="admin.js"></script>
 </body>
 </html>

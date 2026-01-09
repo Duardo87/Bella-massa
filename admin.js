@@ -1,445 +1,321 @@
-// ==================================================
-// admin.js (corrigido e robusto)
-// ==================================================
-
-// ==================================================
-// LOGIN CONFIG
-// ==================================================
+// ================= CONFIG =================
 const ADMIN_USER = "admin";
-const ADMIN_PASS = "123456"; // mantém compatível com admin.html
+const ADMIN_PASS = "123456";
+const STORAGE_KEY = "admin-data";
+const $ = id => document.getElementById(id);
 
-const KEY = "pizzaria-data";
+const uid = () => Date.now() + Math.floor(Math.random()*1000);
 
-// ==================================================
-// DOM helper
-// ==================================================
-const $ = id => document.getElementById(id) || null;
-
-// ==================================================
-// DOM refs (serão preenchidas no DOMContentLoaded)
-let loginDiv, adminDiv;
-let inputUser, inputPass;
-
-// ==================================================
-// DEFAULT DATA
-// ==================================================
+// ================= DEFAULT =================
 const DEFAULT_DATA = {
-  store: { name: "", phone: "" },
-  categories: [],
-  products: [],
-  extras: [],
-  borders: [],
-  promo: null
+  store:{ name:"", phone:"", open:"", close:"" },
+  categories:[],
+  products:[],
+  extras:[],
+  borders:[],
+  promoWeek:{}
 };
 
-// ==================================================
-// INIT
-// ==================================================
-document.addEventListener("DOMContentLoaded", () => {
-  loginDiv = $("login");
-  adminDiv = $("admin");
-
-  inputUser = $("loginUser");
-  inputPass = $("loginPass");
-
-  // se existir um botão local com id btnLogin (algumas versões do admin.html têm)
-  const btnLocal = $("btnLogin");
-  if (btnLocal) {
-    btnLocal.addEventListener("click", () => login());
-  }
-
-  // Enter na senha realiza login
-  if (inputPass) {
-    inputPass.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") login();
-    });
-  }
-});
-
-// ==================================================
-// LOGIN
-// ==================================================
-function login() {
-  const user = (inputUser?.value || "").trim();
-  const pass = (inputPass?.value || "").trim();
-
-  if (user === ADMIN_USER && pass === ADMIN_PASS) {
-    if (loginDiv) loginDiv.classList.add("hidden");
-    if (adminDiv) adminDiv.classList.remove("hidden");
-
-    // chama loadAdmin se existir (defensivo)
-    try {
-      if (typeof loadAdmin === "function") {
-        loadAdmin();
-      } else {
-        // chamar a nossa implementação local
-        localLoadAdmin();
-      }
-    } catch (err) {
-      console.warn("Erro ao inicializar admin:", err);
-    }
-  } else {
+// ================= LOGIN =================
+function loginAdmin(){
+  if(loginUser.value !== ADMIN_USER || loginPass.value !== ADMIN_PASS){
     alert("Login inválido");
+    return;
   }
+  loginBox.classList.add("hidden");
+  admin.classList.remove("hidden");
+  loadAdmin();
 }
 
-function logout() {
-  location.reload();
+// ================= STORAGE =================
+function loadDB(){
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(DEFAULT_DATA);
+}
+function saveDB(d){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
 }
 
-// ==================================================
-// STORAGE (seguro)
-// ==================================================
-function loadDB() {
-  let raw = {};
-  try {
-    raw = JSON.parse(localStorage.getItem(KEY)) || {};
-  } catch (e) {
-    raw = {};
-  }
-
-  return {
-    ...DEFAULT_DATA,
-    ...raw,
-    store: { ...DEFAULT_DATA.store, ...(raw.store || {}) },
-    categories: Array.isArray(raw.categories) ? raw.categories : [],
-    products: Array.isArray(raw.products) ? raw.products : [],
-    extras: Array.isArray(raw.extras) ? raw.extras : [],
-    borders: Array.isArray(raw.borders) ? raw.borders : [],
-    promo: raw.promo || null
-  };
-}
-
-function saveDB(data) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error("Erro ao salvar localStorage:", e);
-  }
-}
-
-// ==================================================
-// ADMIN LOAD (compatível + seguro)
-// ==================================================
-function localLoadAdmin() {
+// ================= INIT =================
+function loadAdmin(){
   const d = loadDB();
-
-  if ($("storeName")) $("storeName").value = d.store.name || "";
-  if ($("storePhone")) $("storePhone").value = d.store.phone || "";
+  storeName.value = d.store.name;
+  storePhone.value = d.store.phone;
+  openTime.value = d.store.open;
+  closeTime.value = d.store.close;
 
   renderCategories();
   renderProducts();
   renderExtras();
   renderBorders();
+  renderPromoWeek();
 }
 
-// Se `loadAdmin` for chamado por admin.html (externo), vamos garantir existir
-if (typeof window.loadAdmin !== "function") {
-  window.loadAdmin = localLoadAdmin;
-}
-
-// ==================================================
-// STORE
-// ==================================================
-function saveStore() {
+// ================= STORE =================
+function saveStore(){
   const d = loadDB();
-  const nameEl = $("storeName");
-  const phoneEl = $("storePhone");
-
-  if (nameEl) d.store.name = nameEl.value.trim();
-  if (phoneEl) {
-    // limpa caracteres não numéricos para WhatsApp
-    d.store.phone = phoneEl.value.replace(/\D/g, "").trim();
-  }
-
+  d.store = {
+    name: storeName.value,
+    phone: storePhone.value.replace(/\D/g,""),
+    open: openTime.value,
+    close: closeTime.value
+  };
   saveDB(d);
-  alert("Loja salva");
+  alert("Dados da loja salvos");
 }
 
-// ==================================================
-// CATEGORIAS
-// ==================================================
-function addCategory() {
-  const input = $("catName");
-  if (!input) return alert("Campo de categoria não encontrado");
-  const name = input.value.trim();
-  if (!name) return alert("Digite a categoria");
-
+// ================= CATEGORIES =================
+function addCategory(){
   const d = loadDB();
-  if (!d.categories.includes(name)) {
-    d.categories.push(name);
-    saveDB(d);
-  }
-  input.value = "";
+  d.categories.push({
+    id: uid(),
+    name: catName.value,
+    order: d.categories.length+1,
+    active: true
+  });
+  catName.value="";
+  saveDB(d);
   renderCategories();
 }
 
-function renderCategories() {
-  const d = loadDB();
-  const list = $("catList");
-  const select = $("prodCat");
-
-  if (list) list.innerHTML = "";
-  if (select) {
-    select.innerHTML = "";
-    select.insertAdjacentHTML("beforeend", `<option value="">Selecione...</option>`);
-  }
-
-  d.categories.forEach(cat => {
-    if (list) list.insertAdjacentHTML("beforeend", `<p>${cat}</p>`);
-    if (select) select.insertAdjacentHTML("beforeend", `<option value="${cat}">${cat}</option>`);
-  });
-}
-
-// ==================================================
-// PRODUTOS
-// ==================================================
-function addProduct() {
-  const nameEl = $("prodName");
-  const priceEl = $("prodPrice");
-  const catEl = $("prodCat");
-  const imgEl = $("prodImage");
-  const descEl = $("prodDesc");
-  const flavorsEl = $("prodFlavors");
-  const bestEl = $("prodBest");
-
-  const name = nameEl ? nameEl.value.trim() : "";
-  const price = priceEl ? Number(priceEl.value) : NaN;
-  const cat = catEl ? catEl.value : "";
-  const imgFile = imgEl?.files && imgEl.files[0] ? imgEl.files[0] : null;
-
-  if (!name) return alert("Digite o nome do produto");
-  if (!isFinite(price)) return alert("Digite o preço do produto");
-  if (!cat) return alert("Selecione a categoria");
-
+function renderCategories(){
   const d = loadDB();
 
-  const addAndSave = (imageData) => {
-    d.products.push({
-      id: Date.now(),
-      name,
-      desc: descEl ? descEl.value.trim() : "",
-      price: Number(price),
-      category: cat,
-      image: imageData || null,
-      maxFlavors: flavorsEl ? Number(flavorsEl.value) || 2 : 2,
-      best: bestEl ? !!bestEl.checked : false
-    });
+  catList.innerHTML = d.categories
+    .sort((a,b)=>a.order-b.order)
+    .map((c,i)=>`
+      <div class="row">
+        <input value="${c.name}" onchange="editCategory(${c.id},this.value)">
+        <button onclick="toggleCategory(${c.id})">${c.active?"👁":"⏸"}</button>
+        <button onclick="moveCategory(${i},-1)">⬆</button>
+        <button onclick="moveCategory(${i},1)">⬇</button>
+        <button onclick="deleteCategory(${c.id})">🗑</button>
+      </div>
+    `).join("");
 
-    saveDB(d);
-    // atualiza listagens
-    renderProducts();
-    renderCategories(); // atualiza select também
-    // limpa campos
-    if (nameEl) nameEl.value = "";
-    if (descEl) descEl.value = "";
-    if (priceEl) priceEl.value = "";
-    if (flavorsEl) flavorsEl.value = "";
-    if (imgEl) imgEl.value = "";
-    if (bestEl) bestEl.checked = false;
-
-    alert("Produto adicionado");
-  };
-
-  if (imgFile) {
-    const reader = new FileReader();
-    reader.onload = () => addAndSave(reader.result);
-    reader.onerror = () => {
-      console.warn("Erro ao ler imagem, salvando sem imagem");
-      addAndSave(null);
-    };
-    reader.readAsDataURL(imgFile);
-  } else {
-    // imagem opcional — adiciona sem imagem
-    addAndSave(null);
-  }
-}
-
-function renderProducts() {
-  const d = loadDB();
-  const list = $("productList");
-  if (!list) return;
-
-  if (!Array.isArray(d.products) || d.products.length === 0) {
-    list.innerHTML = "<p style='opacity:.6'>Nenhum produto</p>";
-    return;
-  }
-
-  list.innerHTML = d.products
-    .map(p => {
-      const max = p.maxFlavors || 2;
-      return `<p>${escapeHtml(p.name)} — R$ ${Number(p.price).toFixed(2)} <small>(até ${max} sabores)</small></p>`;
-    })
+  prodCat.innerHTML = d.categories
+    .filter(c=>c.active)
+    .map(c=>`<option value="${c.id}">${c.name}</option>`)
     .join("");
 }
 
-// ==================================================
-// EXTRAS
-// ==================================================
-function addExtra() {
-  const nameEl = $("extraName");
-  const priceEl = $("extraPrice");
-  const name = nameEl ? nameEl.value.trim() : "";
-  const price = priceEl ? Number(priceEl.value) : NaN;
-  if (!name) return alert("Digite o nome do adicional");
-  if (!isFinite(price)) return alert("Digite o preço do adicional");
-
+function editCategory(id,v){
   const d = loadDB();
-  d.extras.push({
-    id: Date.now(),
-    name,
-    price: Number(price),
-    active: true
-  });
+  d.categories.find(c=>c.id===id).name=v;
   saveDB(d);
-  if (nameEl) nameEl.value = "";
-  if (priceEl) priceEl.value = "";
+}
+function toggleCategory(id){
+  const d = loadDB();
+  const c=d.categories.find(c=>c.id===id);
+  c.active=!c.active;
+  saveDB(d);
+  renderCategories();
+}
+function moveCategory(i,dir){
+  const d=loadDB();
+  const a=d.categories.sort((a,b)=>a.order-b.order);
+  if(!a[i+dir])return;
+  [a[i].order,a[i+dir].order]=[a[i+dir].order,a[i].order];
+  saveDB(d);
+  renderCategories();
+}
+function deleteCategory(id){
+  if(!confirm("Apagar categoria e produtos?"))return;
+  const d=loadDB();
+  d.categories=d.categories.filter(c=>c.id!==id);
+  d.products=d.products.filter(p=>p.categoryId!==id);
+  saveDB(d);
+  renderCategories();
+  renderProducts();
+}
+
+// ================= PRODUCTS =================
+function addProduct(){
+  const d = loadDB();
+
+  const p = {
+    id: uid(),
+    categoryId: +prodCat.value,
+    name: prodName.value,
+    desc: prodDesc.value,
+    prices:{
+      P: priceP.value ? +priceP.value : null,
+      M: priceM.value ? +priceM.value : null,
+      G: priceG.value ? +priceG.value : null
+    },
+    maxFlavors:+prodFlavors.value||1,
+    image:null,
+    order:d.products.length+1,
+    active:true
+  };
+
+  const file = prodImage.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      p.image = reader.result;
+      d.products.push(p);
+      saveDB(d);
+      renderProducts();
+      clearProductForm();
+    };
+    reader.readAsDataURL(file);
+  }else{
+    d.products.push(p);
+    saveDB(d);
+    renderProducts();
+    clearProductForm();
+  }
+}
+
+function clearProductForm(){
+  prodName.value="";
+  prodDesc.value="";
+  priceP.value="";
+  priceM.value="";
+  priceG.value="";
+  prodFlavors.value="";
+  prodImage.value="";
+}
+
+function renderProducts(){
+  const d = loadDB();
+  productList.innerHTML = d.products
+    .sort((a,b)=>a.order-b.order)
+    .map((p,i)=>`
+      <div class="row" style="align-items:center">
+        <input value="${p.name}" onchange="editProduct(${p.id},this.value)" style="flex:2">
+        ${p.image?"📸":"❌"}
+        <button onclick="toggleProduct(${p.id})">${p.active?"👁":"⏸"}</button>
+        <input type="file" accept="image/*" onchange="changeProductImage(${p.id},this)">
+        <button onclick="moveProduct(${i},-1)">⬆</button>
+        <button onclick="moveProduct(${i},1)">⬇</button>
+        <button onclick="deleteProduct(${p.id})">🗑</button>
+      </div>
+    `).join("");
+}
+
+function editProduct(id,v){
+  const d=loadDB();
+  d.products.find(p=>p.id===id).name=v;
+  saveDB(d);
+}
+function toggleProduct(id){
+  const d=loadDB();
+  const p=d.products.find(p=>p.id===id);
+  p.active=!p.active;
+  saveDB(d);
+  renderProducts();
+}
+function moveProduct(i,dir){
+  const d=loadDB();
+  const a=d.products.sort((a,b)=>a.order-b.order);
+  if(!a[i+dir])return;
+  [a[i].order,a[i+dir].order]=[a[i+dir].order,a[i].order];
+  saveDB(d);
+  renderProducts();
+}
+function deleteProduct(id){
+  if(!confirm("Apagar produto?"))return;
+  const d=loadDB();
+  d.products=d.products.filter(p=>p.id!==id);
+  saveDB(d);
+  renderProducts();
+}
+function changeProductImage(id,input){
+  const file=input.files[0];
+  if(!file)return;
+  const d=loadDB();
+  const p=d.products.find(p=>p.id===id);
+  const reader=new FileReader();
+  reader.onload=()=>{
+    p.image=reader.result;
+    saveDB(d);
+    renderProducts();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ================= EXTRAS =================
+function addExtra(){
+  const d=loadDB();
+  d.extras.push({id:uid(),name:extraName.value,price:+extraPrice.value,order:d.extras.length+1,active:true});
+  saveDB(d);
+  renderExtras();
+}
+function renderExtras(){
+  const d=loadDB();
+  extraList.innerHTML=d.extras.map(e=>`
+    <div class="row">${e.name} - R$ ${e.price}
+      <button onclick="deleteExtra(${e.id})">🗑</button>
+    </div>`).join("");
+}
+function deleteExtra(id){
+  const d=loadDB();
+  d.extras=d.extras.filter(e=>e.id!==id);
+  saveDB(d);
   renderExtras();
 }
 
-function renderExtras() {
-  const d = loadDB();
-  const container = $("extraList");
-  if (!container) return;
-
-  if (!d.extras || d.extras.length === 0) {
-    container.innerHTML = "<p style='opacity:.6'>Nenhum adicional</p>";
-    return;
-  }
-
-  container.innerHTML = d.extras
-    .map(e => `
-      <div class="extra-item">
-        <strong>${escapeHtml(e.name)}</strong>
-        <label>
-          <input type="checkbox" ${e.active ? "checked" : ""} onchange="toggleExtra(${e.id}, this.checked)">
-          Ativo
-        </label>
-        <small style="margin-left:8px">R$ ${Number(e.price).toFixed(2)}</small>
-      </div>
-    `).join("");
-}
-
-function toggleExtra(id, active) {
-  const d = loadDB();
-  const ex = d.extras.find(x => x.id === id);
-  if (ex) {
-    ex.active = !!active;
-    saveDB(d);
-    renderExtras();
-  }
-}
-
-// ==================================================
-// BORDAS
-// ==================================================
-function addBorder() {
-  const nameEl = $("borderName");
-  const priceEl = $("borderPrice");
-  const name = nameEl ? nameEl.value.trim() : "";
-  const price = priceEl ? Number(priceEl.value) : NaN;
-  if (!name) return alert("Digite o nome da borda");
-  if (!isFinite(price)) return alert("Digite o preço da borda");
-
-  const d = loadDB();
-  d.borders.push({
-    id: Date.now(),
-    name,
-    price: Number(price),
-    active: true
-  });
+// ================= BORDERS =================
+function addBorder(){
+  const d=loadDB();
+  d.borders.push({id:uid(),name:borderName.value,price:+borderPrice.value,order:d.borders.length+1,active:true});
   saveDB(d);
-  if (nameEl) nameEl.value = "";
-  if (priceEl) priceEl.value = "";
+  renderBorders();
+}
+function renderBorders(){
+  const d=loadDB();
+  borderList.innerHTML=d.borders.map(b=>`
+    <div class="row">${b.name} - R$ ${b.price}
+      <button onclick="deleteBorder(${b.id})">🗑</button>
+    </div>`).join("");
+}
+function deleteBorder(id){
+  const d=loadDB();
+  d.borders=d.borders.filter(b=>b.id!==id);
+  saveDB(d);
   renderBorders();
 }
 
-function renderBorders() {
-  const d = loadDB();
-  const container = $("borderList");
-  if (!container) return;
-
-  if (!d.borders || d.borders.length === 0) {
-    container.innerHTML = "<p style='opacity:.6'>Nenhuma borda</p>";
-    return;
-  }
-
-  container.innerHTML = d.borders
-    .map(b => `
-      <div class="extra-item">
-        <strong>${escapeHtml(b.name)}</strong>
-        <label>
-          <input type="checkbox" ${b.active ? "checked" : ""} onchange="toggleBorder(${b.id}, this.checked)">
-          Ativo
-        </label>
-        <small style="margin-left:8px">R$ ${Number(b.price).toFixed(2)}</small>
-      </div>
-    `).join("");
+// ================= PROMO WEEK =================
+function renderPromoWeek(){
+  const d=loadDB();
+  const days=["Dom","Seg","Ter","Qua","Qui","Sex","Sab"];
+  promoWeek.innerHTML=days.map((day,i)=>`
+    <div class="row">
+      <strong>${day}</strong>
+      <input placeholder="Título" value="${d.promoWeek[i]?.title||""}" onchange="setPromo(${i},'title',this.value)">
+      <input type="number" placeholder="Preço" value="${d.promoWeek[i]?.price||""}" onchange="setPromo(${i},'price',this.value)">
+      <input type="file" accept="image/*" onchange="setPromo(${i},'image',this)">
+      <input type="checkbox" ${d.promoWeek[i]?.active?"checked":""} onchange="setPromo(${i},'active',this.checked)"> Ativa
+    </div>
+  `).join("");
 }
-
-function toggleBorder(id, active) {
-  const d = loadDB();
-  const b = d.borders.find(x => x.id === id);
-  if (b) {
-    b.active = !!active;
-    saveDB(d);
-    renderBorders();
-  }
-}
-
-// ==================================================
-// PROMO (opcional)
-// ==================================================
-function savePromo() {
-  const descEl = $("promoDesc");
-  const priceEl = $("promoPrice");
-  const imgEl = $("promoImage");
-
-  const desc = descEl ? descEl.value.trim() : "";
-  const price = priceEl ? Number(priceEl.value) : NaN;
-  const file = imgEl?.files && imgEl.files[0] ? imgEl.files[0] : null;
-
-  if (!desc) return alert("Digite a descrição da promoção");
-  if (!isFinite(price)) return alert("Digite o preço da promoção");
-
-  const d = loadDB();
-
-  const saveObj = (imgData) => {
-    d.promo = {
-      active: true,
-      description: desc,
-      price: Number(price),
-      image: imgData || null
-    };
-    saveDB(d);
-    alert("Promoção salva");
-    if (descEl) descEl.value = "";
-    if (priceEl) priceEl.value = "";
-    if (imgEl) imgEl.value = "";
-  };
-
-  if (file) {
-    const r = new FileReader();
-    r.onload = () => saveObj(r.result);
-    r.onerror = () => {
-      console.warn("Erro ao ler imagem da promoção, salvando sem imagem");
-      saveObj(null);
+function setPromo(day,field,value){
+  const d=loadDB();
+  d.promoWeek[day]=d.promoWeek[day]||{};
+  if(field==="image"){
+    const file=value.files[0];
+    if(!file)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      d.promoWeek[day].image=r.result;
+      saveDB(d);
+      alert("Imagem salva");
     };
     r.readAsDataURL(file);
-  } else {
-    saveObj(null);
+    return;
   }
+  d.promoWeek[day][field]=field==="price"?Number(value):value;
+  saveDB(d);
 }
 
-// ==================================================
-// UTIL
-// ==================================================
-function escapeHtml(str) {
-  if (!str && str !== 0) return "";
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+// ================= EXPORT =================
+function exportAppJSON(){
+  const d=loadDB();
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="app.json";
+  a.click();
 }
