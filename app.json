@@ -1,38 +1,41 @@
 {
   "store": {
-    "name": "Bella Massa",
+    "name": "Bella Massa Pizzaria",
     "phone": "5562993343622",
     "open": "18:30",
-    "close": "23:59"
+    "close": "23:59",
+    "deliveryTime": "35–50 min",
+    "deliveryFee": 0,
+    "whatsMsg": ""
   },
 
   "categories": [
     {
-      "id": 1,
+      "id": 1768074277405,
       "name": "🍕 Pizzas Tradicionais",
       "order": 1,
       "active": true
     },
     {
-      "id": 2,
-      "name": "🔥 Sabores Premium da Casa",
+      "id": 1768074301915,
+      "name": "⭐ Sabores Premium da Casa",
       "order": 2,
       "active": true
     },
     {
-      "id": 3,
+      "id": 1768074363680,
       "name": "🍫 Pizzas Doces",
       "order": 3,
       "active": true
     },
     {
-      "id": 4,
+      "id": 1768074387031,
       "name": "🥤 Bebidas",
       "order": 4,
       "active": true
     },
     {
-      "id": 5,
+      "id": 1768074480793,
       "name": "🧋 Cremes e Sucos",
       "order": 5,
       "active": true
@@ -41,72 +44,58 @@
 
   "products": [
     {
-      "id": 1,
-      "categoryId": 1,
+      "id": 1768088359662,
+      "categoryId": 1768074277405,
       "name": "🍕 Calabresa",
-      "desc": "Calabresa fatiada, orégano, cebola e mussarela sobre o nosso molho especial",
+      "desc": "Calabresa fatiada, orégano, cebola e mussarela sobre nosso molho especial",
       "prices": {
         "P": 35,
         "M": 45,
         "G": 55
       },
       "maxFlavors": 2,
-      "image": "./images/calabresa.jpg",
+      "image": null,
+      "badges": {
+        "bestseller": true,
+        "promo": false,
+        "offer": false
+      },
       "active": true
-    }
-  ],
-
-  "borders": [
-    {
-      "id": 1,
-      "name": "Cheddar",
-      "price": 10
-    },
-    {
-      "id": 2,
-      "name": "Catupiry",
-      "price": 10
-    },
-    {
-      "id": 3,
-      "name": "Mussarela",
-      "price": 12
-    },
-    {
-      "id": 4,
-      "name": "Chocolate",
-      "price": 12
     }
   ],
 
   "extras": [
     {
-      "id": 1,
+      "id": 1769000000001,
       "name": "Bacon",
-      "price": 6
+      "price": 5
     },
     {
-      "id": 2,
-      "name": "Calabresa extra",
-      "price": 6
-    },
-    {
-      "id": 3,
-      "name": "Frango",
-      "price": 6
-    },
-    {
-      "id": 4,
-      "name": "Catupiry extra",
+      "id": 1769000000002,
+      "name": "Catupiry",
       "price": 5
     }
   ],
 
-  "promo": {
-    "active": false,
-    "title": "",
-    "description": "",
-    "price": 0,
-    "image": null
-  }
+  "borders": [
+    {
+      "id": 1769000000101,
+      "name": "Catupiry",
+      "price": 10
+    },
+    {
+      "id": 1769000000102,
+      "name": "Cheddar",
+      "price": 10
+    },
+    {
+      "id": 1769000000103,
+      "name": "Chocolate",
+      "price": 12
+    }
+  ],
+
+  "promoWeek": {},
+
+  "reviews": []
 }
