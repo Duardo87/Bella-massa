@@ -2,20 +2,17 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Admin • Cardápio</title>
+  <title>Admin • Bella Massa</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox">
   <h2>Login Admin</h2>
-  <input id="loginUser" placeholder="Usuário">
   <input id="loginPass" type="password" placeholder="Senha">
   <button onclick="loginAdmin()">Entrar</button>
 </div>
 
-<!-- ADMIN -->
 <div id="admin" class="hidden">
 
   <h2>🏪 Dados da Loja</h2>
@@ -23,7 +20,11 @@
   <input id="storePhone" placeholder="WhatsApp">
   <input id="openTime" type="time">
   <input id="closeTime" type="time">
+  <input id="deliveryTime" placeholder="Tempo médio (ex: 35–50 min)">
+  <input id="deliveryFee" placeholder="Taxa de entrega">
+  <textarea id="whatsMsg" placeholder="Mensagem fixa no WhatsApp"></textarea>
   <button onclick="saveStore()">Salvar loja</button>
+  <button onclick="logout()">🚪 Sair</button>
 
   <hr>
 
@@ -35,17 +36,14 @@
   <hr>
 
   <h2>🍕 Produtos</h2>
-  <input id="prodName" placeholder="Nome do produto">
+  <input id="prodName" placeholder="Nome">
   <input id="prodDesc" placeholder="Descrição">
   <select id="prodCat"></select>
-
   <input id="priceP" placeholder="Preço P">
   <input id="priceM" placeholder="Preço M">
   <input id="priceG" placeholder="Preço G">
-
   <input id="prodFlavors" placeholder="Máx sabores">
   <input id="prodImage" type="file" accept="image/*">
-
   <button onclick="addProduct()">Adicionar produto</button>
   <div id="productList"></div>
 
@@ -66,11 +64,9 @@
   <div id="borderList"></div>
 
   <hr>
-<h2>🔥 Promoção por Dia da Semana</h2>
-<div id="promoWeek"></div>
-  <hr>
 
-  <button onclick="exportAppJSON()">⬇ Exportar app.json</button>
+  <h2>🔥 Promoção por Dia</h2>
+  <div id="promoWeek"></div>
 
 </div>
 

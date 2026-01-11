@@ -66,7 +66,7 @@ function loadPromo(){
 function renderCategories(){
   const cats = (data.categories || [])
     .filter(c => c.active)
-    .sort((a,b)=>a.order-b.order);
+.sort((a,b)=>(a.order||0)-(b.order||0));
 
   $("categories").innerHTML = "";
   cats.forEach((c,i)=>{
@@ -90,7 +90,9 @@ function renderProducts(catId, btn){
     .forEach(p=>{
       $("products").innerHTML += `
         <div class="product-card">
-          ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
+        ${p.badges?.bestseller ? `<span class="badge">🔥 Mais pedido</span>` : ""}
+${p.badges?.promo ? `<span class="badge">⭐ Promo</span>` : ""}
+${p.badges?.offer ? `<span class="badge">💥 Oferta</span>` : ""}
           ${p.image ? `<img src="${p.image}" loading="lazy">` : ""}
           <h3>${p.name}</h3>
           <p>${p.desc || ""}</p>
@@ -155,7 +157,7 @@ function stepFlavors(){
 function stepBorder(){
   $("stepTitle").textContent = "🥖 Borda (opcional)";
   let html = "";
-  (data.borders || []).filter(b=>b.active).forEach(b=>{
+(data.borders || []).filter(b => b.active !== false).forEach(b=>{
     html += `<label>
       <input type="radio" name="border" value="${b.name}" data-price="${b.price}">
       ${b.name} (+R$ ${b.price})
@@ -167,7 +169,7 @@ function stepBorder(){
 function stepExtras(){
   $("stepTitle").textContent = "➕ Adicionais";
   let html = "";
-  (data.extras || []).filter(e=>e.active).forEach(e=>{
+(data.extras || []).filter(e => e.active !== false).forEach(e=>{
     html += `<label>
       <input type="checkbox" value="${e.name}" data-price="${e.price}">
       ${e.name} (+R$ ${e.price})
@@ -256,7 +258,26 @@ function toggleCart(){
 /* ==================================================
    WHATSAPP
 ================================================== */
+function storeIsOpen(){
+  if (!data.store.open || !data.store.close) return true;
+
+  const now = new Date();
+  const [oh, om] = data.store.open.split(":").map(Number);
+  const [ch, cm] = data.store.close.split(":").map(Number);
+
+  const open = new Date();
+  open.setHours(oh, om, 0, 0);
+
+  const close = new Date();
+  close.setHours(ch, cm, 0, 0);
+
+  return now >= open && now <= close;
+}
 function sendWhats(){
+  if (!storeIsOpen()){
+    alert("⏰ Estamos fechados no momento.\nConfira nosso horário de funcionamento.");
+    return;
+  }
   if (!cart.length){ alert("Carrinho vazio"); return; }
 
   const address = $("address").value.trim();
@@ -270,7 +291,10 @@ function sendWhats(){
 
   let msg = "🧾 *Pedido Bella Massa*%0A%0A";
   let total = 0;
-
+const deliveryFee = Number(data.store.deliveryFee || 0);if (deliveryFee > 0) {
+  total += deliveryFee;
+  msg += `%0A🚚 *Entrega:* R$ ${deliveryFee.toFixed(2)}%0A`;
+}
   cart.forEach(i=>{
     total += i.total;
     msg += `• ${i.desc} — R$ ${i.total.toFixed(2)}%0A`;
@@ -298,8 +322,11 @@ function fbEvent(name){
    REVIEWS
 ================================================== */
 function renderReviews(){
-  if (!data.reviews) return;
-  $("reviews").innerHTML = data.reviews.map(r=>`
+  if (!data.reviews || !Array.isArray(data.reviews)) return;
+  const box = $("reviews");
+  if (!box) return;
+
+  box.innerHTML = data.reviews.map(r=>`
     <div class="review">
       <img src="${r.photo}">
       <div>
