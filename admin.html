@@ -1,75 +1,132 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin • Bella Massa</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin | Bella Massa</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    header {
+      background: #b30000;
+      color: #fff;
+      padding: 14px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 14px;
+    }
+
+    input, select, button, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background: #b30000;
+      color: #fff;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #333;
+    }
+
+    h3 {
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    .item {
+      background: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      border-left: 4px solid #b30000;
+    }
+
+    .item:hover {
+      background: #f0f0f0;
+    }
+
+    small {
+      opacity: 0.6;
+    }
+  </style>
 </head>
 <body>
 
-<div id="loginBox">
-  <h2>Login Admin</h2>
-  <input id="loginPass" type="password" placeholder="Senha">
-  <button onclick="loginAdmin()">Entrar</button>
+<!-- LOGIN -->
+<div id="login" class="container">
+  <header>🔐 Acesso Administrativo</header>
+
+  <input id="loginUser" placeholder="Usuário" />
+  <input id="loginPass" type="password" placeholder="Senha" />
+
+  <button onclick="login()">Entrar</button>
 </div>
 
+<!-- ADMIN -->
 <div id="admin" class="hidden">
+  <header>🍕 Admin - Bella Massa</header>
 
-  <h2>🏪 Dados da Loja</h2>
-  <input id="storeName" placeholder="Nome da loja">
-  <input id="storePhone" placeholder="WhatsApp">
-  <input id="openTime" type="time">
-  <input id="closeTime" type="time">
-  <input id="deliveryTime" placeholder="Tempo médio (ex: 35–50 min)">
-  <input id="deliveryFee" placeholder="Taxa de entrega">
-  <textarea id="whatsMsg" placeholder="Mensagem fixa no WhatsApp"></textarea>
-  <button onclick="saveStore()">Salvar loja</button>
-  <button onclick="logout()">🚪 Sair</button>
+  <div class="container">
 
-  <hr>
+    <!-- PRODUTOS -->
+    <h3>➕ Produto</h3>
 
-  <h2>📂 Categorias</h2>
-  <input id="catName" placeholder="Nova categoria">
-  <button onclick="addCategory()">Adicionar</button>
-  <div id="catList"></div>
+    <input id="prodName" placeholder="Nome do produto" />
+    <textarea id="prodDesc" placeholder="Descrição"></textarea>
+    <input id="prodPrice" type="number" step="0.01" placeholder="Preço" />
 
-  <hr>
+    <select id="prodCategory">
+      <option value="">Selecione a categoria</option>
+      <option value="Tradicionais">🍕 Tradicionais</option>
+      <option value="Premium">⭐ Premium</option>
+      <option value="Doces">🍫 Doces</option>
+      <option value="Combo">🔥 Combos</option>
+      <option value="Bebidas">🥤 Bebidas</option>
+    </select>
 
-  <h2>🍕 Produtos</h2>
-  <input id="prodName" placeholder="Nome">
-  <input id="prodDesc" placeholder="Descrição">
-  <select id="prodCat"></select>
-  <input id="priceP" placeholder="Preço P">
-  <input id="priceM" placeholder="Preço M">
-  <input id="priceG" placeholder="Preço G">
-  <input id="prodFlavors" placeholder="Máx sabores">
-  <input id="prodImage" type="file" accept="image/*">
-  <button onclick="addProduct()">Adicionar produto</button>
-  <div id="productList"></div>
+    <input id="prodImage" placeholder="URL da imagem (opcional)" />
 
-  <hr>
+    <button id="btnAddProduct" onclick="addOrUpdateProduct()">
+      ➕ Adicionar Produto
+    </button>
 
-  <h2>➕ Adicionais</h2>
-  <input id="extraName" placeholder="Nome">
-  <input id="extraPrice" placeholder="Preço">
-  <button onclick="addExtra()">Adicionar</button>
-  <div id="extraList"></div>
+    <!-- LISTA -->
+    <h3>📦 Produtos Cadastrados</h3>
+    <small>Toque em um produto para editar</small>
 
-  <hr>
+    <div id="productList"></div>
 
-  <h2>🥖 Bordas</h2>
-  <input id="borderName" placeholder="Nome">
-  <input id="borderPrice" placeholder="Preço">
-  <button onclick="addBorder()">Adicionar</button>
-  <div id="borderList"></div>
+    <button class="secondary" onclick="logout()">Sair</button>
 
-  <hr>
-
-  <h2>🔥 Promoção por Dia</h2>
-  <div id="promoWeek"></div>
-
+  </div>
 </div>
 
+<!-- SCRIPT -->
 <script src="admin.js"></script>
+
 </body>
 </html>
