@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Bella Massa Pizzaria</title>
+  <meta name="description" content="Pizza artesanal com entrega rápida. Peça agora pelo WhatsApp.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -13,8 +14,9 @@
   <a id="storePhone" target="_blank">WhatsApp</a>
 </header>
 
-<!-- PROMOÇÃO DO DIA -->
+<!-- PROMOÇÃO -->
 <section id="promoBanner" class="promo hidden">
+  <img id="promoImg" style="width:100%;border-radius:12px;margin-bottom:8px;display:none">
   <h2 id="promoTitle"></h2>
   <p id="promoDesc"></p>
   <strong id="promoPrice"></strong>
@@ -30,10 +32,10 @@
   <h3>Pedido</h3>
   <div id="cartItems"></div>
 
-  <label>🏠 Endereço de entrega</label>
-  <textarea id="address" placeholder="Rua, número, bairro"></textarea>
+  <label>🏠 Endereço</label>
+  <textarea id="address"></textarea>
 
-  <label>💳 Forma de pagamento</label>
+  <label>💳 Pagamento</label>
   <select id="payment">
     <option value="">Selecione</option>
     <option>Dinheiro</option>
@@ -42,18 +44,19 @@
   </select>
 
   <label>💬 Observação</label>
-  <textarea id="obs" placeholder="Ex: sem cebola, troco para 100"></textarea>
+  <textarea id="obs"></textarea>
 
   <strong id="cartTotal"></strong>
   <button onclick="sendWhats()">Enviar WhatsApp</button>
 </aside>
 
-<!-- MODAL ETAPAS (produtos normais) -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
     <h3 id="stepTitle"></h3>
     <div id="stepContent"></div>
-
+    <small id="flavorWarn" style="display:none;opacity:.7">
+      ⚠ O valor será do sabor mais caro
+    </small>
     <div class="step-actions">
       <button id="prevStep">Voltar</button>
       <button id="nextStep">Continuar</button>
@@ -61,11 +64,13 @@
   </div>
 </div>
 
-<a id="whatsFloat" class="whats-float" target="_blank">💬 Pedir no WhatsApp</a>
+<a id="whatsFloat" class="whats-float" target="_blank">💬 WhatsApp</a>
+
+<section class="reviews">
+  <h3>⭐ Avaliações (4,9)</h3>
+  <div id="reviews"></div>
+</section>
 
 <script src="app.js"></script>
-<section class="reviews">
-  <h3>⭐ Avaliações dos clientes (4,9)</h3>
-  <div id="reviews"></div>
-</section></body>
+</body>
 </html>
