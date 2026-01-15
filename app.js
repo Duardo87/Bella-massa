@@ -39,10 +39,11 @@ async function loadData(){
 
 document.addEventListener("DOMContentLoaded", async ()=>{
   data = await loadData();
+
   $("storeName").textContent = data.store.name;
   $("storePhone").href = `https://wa.me/${data.store.phone}`;
   $("whatsFloat").href = `https://wa.me/${data.store.phone}`;
-  $("btnCart").onclick = ()=>$("cartBox").classList.toggle("hidden");
+  $("btnCart").onclick = () => $("cartBox").classList.toggle("hidden");
 
   loadPromo();
   renderCategories();
@@ -144,27 +145,39 @@ function renderCart(){
   $("cartTotal").textContent = "Total: R$ " + total.toFixed(2);
 }
 
-/* ================= DELIVERY ================= */
+/* ================= DELIVERY (CORRIGIDO) ================= */
 async function calculateDelivery(address){
-  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(DELIVERY_ORIGIN)}&destinations=${encodeURIComponent(address)}&key=${GOOGLE_API_KEY}`;
-  const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
-  const json = await res.json();
+  try{
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(DELIVERY_ORIGIN)}&destinations=${encodeURIComponent(address)}&key=${GOOGLE_API_KEY}`;
 
-  const km = json.rows[0].elements[0].distance.value / 1000;
+    const res = await fetch(url);
+    const json = await res.json();
 
-  if(km > MAX_KM){
-    alert("🚫 Fora da nossa área de entrega (máx. 10 km)");
-    throw new Error("Fora da área");
+    if (!json.rows || !json.rows[0].elements[0].distance){
+      alert("❌ Não foi possível calcular a entrega. Verifique o endereço.");
+      throw new Error("Erro distância");
+    }
+
+    const km = json.rows[0].elements[0].distance.value / 1000;
+
+    if(km > MAX_KM){
+      alert("🚫 Fora da nossa área de entrega (máx. 10 km)");
+      throw new Error("Fora da área");
+    }
+
+    deliveryFee = km <= FREE_KM ? 0 : Math.ceil((km - FREE_KM) * PRICE_PER_KM);
+
+    $("deliveryInfo").textContent =
+      km <= FREE_KM
+        ? `🚚 Entrega grátis (${km.toFixed(1)} km)`
+        : `📍 ${km.toFixed(1)} km • Taxa R$ ${deliveryFee.toFixed(2)}`;
+
+    return { km, fee: deliveryFee };
+
+  } catch (err){
+    alert("❌ Erro ao calcular entrega. Tente novamente.");
+    throw err;
   }
-
-  deliveryFee = km <= FREE_KM ? 0 : Math.ceil((km - FREE_KM) * PRICE_PER_KM);
-
-  $("deliveryInfo").textContent =
-    km <= FREE_KM
-      ? `🚚 Entrega grátis (${km.toFixed(1)} km)`
-      : `📍 ${km.toFixed(1)} km • Taxa R$ ${deliveryFee.toFixed(2)}`;
-
-  return { km, fee: deliveryFee };
 }
 
 /* ================= WHATS ================= */
