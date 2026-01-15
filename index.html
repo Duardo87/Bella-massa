@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Bella Massa Pizzaria</title>
-  <meta name="description" content="Pizza artesanal com entrega rápida. Peça agora pelo WhatsApp.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bella Massa Pizzaria 🍕 Delivery rápido em Goiânia. Promoções todos os dias.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,11 +14,8 @@
   <a id="storePhone" target="_blank">WhatsApp</a>
 </header>
 
-<!-- PROMOÇÃO -->
 <section id="promoBanner" class="promo hidden">
-  <img id="promoImg" style="width:100%;border-radius:12px;margin-bottom:8px;display:none">
   <h2 id="promoTitle"></h2>
-  <p id="promoDesc"></p>
   <strong id="promoPrice"></strong>
   <button id="promoBtn">🔥 Pedir promoção</button>
 </section>
@@ -32,10 +29,13 @@
   <h3>Pedido</h3>
   <div id="cartItems"></div>
 
-  <label>🏠 Endereço</label>
-  <textarea id="address"></textarea>
+  <label>🏠 Endereço de entrega</label>
+  <input id="street" placeholder="Rua">
+  <input id="number" placeholder="Número">
+  <input id="district" placeholder="Bairro">
+  <p id="deliveryInfo"></p>
 
-  <label>💳 Pagamento</label>
+  <label>💳 Forma de pagamento</label>
   <select id="payment">
     <option value="">Selecione</option>
     <option>Dinheiro</option>
@@ -50,26 +50,19 @@
   <button onclick="sendWhats()">Enviar WhatsApp</button>
 </aside>
 
+<!-- MODAL TAMANHO -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
-    <h3 id="stepTitle"></h3>
-    <div id="stepContent"></div>
-    <small id="flavorWarn" style="display:none;opacity:.7">
-      ⚠ O valor será do sabor mais caro
-    </small>
+    <h3>📏 Escolha o tamanho</h3>
+    <div id="sizeOptions"></div>
     <div class="step-actions">
-      <button id="prevStep">Voltar</button>
-      <button id="nextStep">Continuar</button>
+      <button onclick="closeModal()">Cancelar</button>
+      <button onclick="confirmSize()">Adicionar</button>
     </div>
   </div>
 </div>
 
 <a id="whatsFloat" class="whats-float" target="_blank">💬 WhatsApp</a>
-
-<section class="reviews">
-  <h3>⭐ Avaliações (4,9)</h3>
-  <div id="reviews"></div>
-</section>
 
 <script src="app.js"></script>
 </body>

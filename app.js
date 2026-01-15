@@ -1,202 +1,135 @@
-let data=null, cart=[], currentProduct=null;
-let step=1, sel={size:null,flavors:[],border:null,extras:[]};
-const $=id=>document.getElementById(id);
+/* ================= DELIVERY CONFIG ================= */
+const DELIVERY_ORIGIN = "Rua Flores das Paineiras, Flores do Cerrado, Goiânia - GO, 74481-866";
+const FREE_KM = 3;
+const PRICE_PER_KM = 2;
+const GOOGLE_API_KEY = "AIzaSyA5nq8HIxuHZpFL365jwquYwTjnwUyqKcI";
 
+let data = null;
+let cart = [];
+let currentProduct = null;
+let selectedSize = null;
+let deliveryFee = 0;
+
+const $ = id => document.getElementById(id);
+
+/* ================= LOAD ================= */
 async function loadData(){
-  const res=await fetch("./app.json?v="+Date.now());
+  const res = await fetch("./app.json?v=" + Date.now());
   return await res.json();
 }
 
-document.addEventListener("DOMContentLoaded",async()=>{
-  data=await loadData();
-
-  $("storeName").textContent=data.store.name;
-  $("storePhone").href=`https://wa.me/55${data.store.phone}`;
-  $("whatsFloat").href=`https://wa.me/55${data.store.phone}`;
-  $("btnCart").onclick=toggleCart;
-
+document.addEventListener("DOMContentLoaded", async ()=>{
+  data = await loadData();
+  $("storeName").textContent = data.store.name;
+  $("storePhone").href = `https://wa.me/${data.store.phone}`;
+  $("whatsFloat").href = `https://wa.me/${data.store.phone}`;
+  $("btnCart").onclick = ()=>$("cartBox").classList.toggle("hidden");
   loadPromo();
   renderCategories();
-  renderReviews();
 });
 
+/* ================= PROMO ================= */
 function loadPromo(){
-  if(!data.promoWeek)return;
-  const p=data.promoWeek[new Date().getDay()];
-  if(!p||!p.active)return;
-
-  $("promoTitle").textContent=p.title;
-  $("promoDesc").textContent=p.desc||"";
-  $("promoPrice").textContent="R$ "+Number(p.price).toFixed(2);
-
-  if(p.image){
-    $("promoImg").src=p.image;
-    $("promoImg").style.display="block";
-  }
-
+  const promo = data.promoWeek?.[new Date().getDay()];
+  if(!promo || !promo.active) return;
+  $("promoTitle").textContent = promo.title;
+  $("promoPrice").textContent = "R$ " + promo.price.toFixed(2);
   $("promoBanner").classList.remove("hidden");
-  $("promoBtn").onclick=()=>{
-    cart.push({desc:p.title,total:+p.price});
+  $("promoBtn").onclick = ()=>{
+    cart.push({desc: promo.title, total: promo.price});
     renderCart();
   };
 }
 
+/* ================= MENU ================= */
 function renderCategories(){
-  const cats=data.categories.filter(c=>c.active);
-  $("categories").innerHTML="";
+  const cats = data.categories.filter(c=>c.active).sort((a,b)=>a.order-b.order);
+  $("categories").innerHTML = "";
   cats.forEach((c,i)=>{
-    $("categories").innerHTML+=`
-      <button class="${i===0?'active':''}"
-      onclick="renderProducts(${c.id},this)">${c.name}</button>`;
+    $("categories").innerHTML += `<button class="${i===0?'active':''}" onclick="renderProducts(${c.id},this)">${c.name}</button>`;
   });
-  if(cats.length)renderProducts(cats[0].id);
+  if(cats.length) renderProducts(cats[0].id);
 }
 
 function renderProducts(catId,btn){
-  document.querySelectorAll(".categories button")
-    .forEach(b=>b.classList.remove("active"));
-  if(btn)btn.classList.add("active");
+  document.querySelectorAll(".categories button").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
 
-  $("products").innerHTML="";
-  data.products
-    .filter(p=>p.categoryId===catId && p.active!==false)
-    .forEach(p=>{
-      $("products").innerHTML+=`
+  $("products").innerHTML = "";
+  data.products.filter(p=>p.active && p.categoryId===catId).forEach(p=>{
+    $("products").innerHTML += `
       <div class="product-card">
         ${p.image?`<img src="${p.image}">`:""}
         <h3>${p.name}</h3>
         <p>${p.desc||""}</p>
-        <button onclick="startOrder(${p.id})">Escolher</button>
+        <button onclick="openSizeModal(${p.id})">Escolher</button>
       </div>`;
-    });
+  });
 }
 
-function startOrder(id){
-  currentProduct=data.products.find(p=>p.id===id);
-  step=1; sel={size:null,flavors:[],border:null,extras:[]};
+/* ================= SIZE MODAL ================= */
+function openSizeModal(id){
+  currentProduct = data.products.find(p=>p.id===id);
+  $("sizeOptions").innerHTML = "";
+  Object.entries(currentProduct.prices).forEach(([k,v])=>{
+    if(v) $("sizeOptions").innerHTML += `<label><input type="radio" name="size" value="${k}" data-price="${v}"> ${k} - R$ ${v}</label><br>`;
+  });
   $("modal").classList.remove("hidden");
-  $("nextStep").textContent="Continuar";
-  renderStep();
 }
 
-$("prevStep").onclick=()=>{if(step>1){step--;renderStep();}};
-$("nextStep").onclick=nextStep;
-
-function renderStep(){
-  $("flavorWarn").style.display="none";
-  if(step===1)stepSize();
-  if(step===2)stepFlavors();
-  if(step===3)stepBorder();
-  if(step===4)stepExtras();
-}
-
-function stepSize(){
-  $("stepTitle").textContent="📏 Tamanho";
-  $("stepContent").innerHTML=Object.entries(currentProduct.prices)
-    .map(([k,v])=>`
-    <label><input type="radio" name="size" value="${k}" data-price="${v}">
-    ${k} - R$ ${v}</label>`).join("");
-}
-
-function stepFlavors(){
-  if(currentProduct.maxFlavors<=1){step++;renderStep();return;}
-  $("stepTitle").textContent="🍕 Sabores";
-  $("flavorWarn").style.display="block";
-  $("stepContent").innerHTML=data.products
-    .filter(p=>p.categoryId===currentProduct.categoryId)
-    .map(p=>`
-      <label><input type="checkbox" value="${p.name}"
-      data-prices='${JSON.stringify(p.prices)}'>${p.name}</label>`).join("");
-}
-
-function stepBorder(){
-  $("stepTitle").textContent="🥖 Borda";
-  $("stepContent").innerHTML=(data.borders||[])
-    .map(b=>`
-    <label><input type="radio" name="border"
-    value="${b.name}" data-price="${b.price}">
-    ${b.name} (+R$ ${b.price})</label>`).join("");
-}
-
-function stepExtras(){
-  $("stepTitle").textContent="➕ Adicionais";
-  $("stepContent").innerHTML=(data.extras||[])
-    .map(e=>`
-    <label><input type="checkbox" value="${e.name}"
-    data-price="${e.price}">${e.name} (+R$ ${e.price})</label>`).join("");
-  $("nextStep").textContent="Adicionar";
-}
-
-function nextStep(){
-  if(step===1){
-    const s=document.querySelector("input[name=size]:checked");
-    if(!s)return alert("Escolha o tamanho");
-    sel.size=s;
-  }
-  if(step===2){
-    sel.flavors=[...$("stepContent").querySelectorAll("input:checked")];
-  }
-  if(step===3){
-    sel.border=document.querySelector("input[name=border]:checked");
-  }
-  if(step===4){
-    sel.extras=[...$("stepContent").querySelectorAll("input:checked")];
-    finalizeItem(); return;
-  }
-  step++; renderStep();
-}
-
-function finalizeItem(){
-  let total=+sel.size.dataset.price;
-  let desc=`${currentProduct.name} (${sel.size.value})`;
-
-  if(sel.flavors.length){
-    let max=0;
-    sel.flavors.forEach(f=>{
-      const p=JSON.parse(f.dataset.prices)[sel.size.value]||0;
-      if(p>max)max=p;
-    });
-    total=max;
-    desc+=" | Sabores: "+sel.flavors.map(f=>f.value).join(", ");
-  }
-
-  if(sel.border){total+=+sel.border.dataset.price; desc+=` | Borda: ${sel.border.value}`;}
-  sel.extras.forEach(e=>{total+=+e.dataset.price; desc+=` | ${e.value}`;});
-
-  cart.push({desc,total});
+function closeModal(){
   $("modal").classList.add("hidden");
+}
+
+function confirmSize(){
+  const opt = document.querySelector("input[name=size]:checked");
+  if(!opt) return alert("Escolha o tamanho");
+  cart.push({desc:`${currentProduct.name} (${opt.value})`, total:Number(opt.dataset.price)});
+  closeModal();
   renderCart();
 }
 
-function toggleCart(){ $("cartBox").classList.toggle("hidden"); }
-
+/* ================= CART ================= */
 function renderCart(){
-  let total=0;
-  $("cartItems").innerHTML=cart.map(i=>{
-    total+=i.total;
-    return `<p>${i.desc} — R$ ${i.total.toFixed(2)}</p>`;
-  }).join("");
-
-  total+=data.store.deliveryFee||0;
-  $("cartTotal").textContent=`Total: R$ ${total.toFixed(2)}`;
+  let total = 0;
+  $("cartItems").innerHTML = "";
+  cart.forEach((i,idx)=>{
+    total += i.total;
+    $("cartItems").innerHTML += `<p>${i.desc} - R$ ${i.total.toFixed(2)} <button onclick="cart.splice(${idx},1);renderCart()">❌</button></p>`;
+  });
+  $("cartTotal").textContent = "Total: R$ " + total.toFixed(2);
 }
 
-function sendWhats(){
-  if(!address.value)return alert("Informe o endereço");
-  if(!payment.value)return alert("Escolha pagamento");
-
-  let msg=`🍕 *Pedido Bella Massa*%0A`;
-  cart.forEach(i=>msg+=`• ${i.desc} - R$ ${i.total.toFixed(2)}%0A`);
-  msg+=`🚚 Taxa: R$ ${(data.store.deliveryFee||0).toFixed(2)}%0A`;
-  msg+=`📍 ${address.value}%0A💳 ${payment.value}`;
-  if(obs.value)msg+=`%0A📝 ${obs.value}`;
-
-  window.open(`https://wa.me/55${data.store.phone}?text=${msg}`,"_blank");
+/* ================= DELIVERY ================= */
+async function calculateDelivery(addr){
+  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(DELIVERY_ORIGIN)}&destinations=${encodeURIComponent(addr)}&key=${GOOGLE_API_KEY}`;
+  const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+  const json = await res.json();
+  const km = json.rows[0].elements[0].distance.value / 1000;
+  deliveryFee = km <= FREE_KM ? 0 : Math.ceil((km - FREE_KM) * PRICE_PER_KM);
+  $("deliveryInfo").textContent = km <= FREE_KM ? `🚚 Entrega grátis (${km.toFixed(1)} km)` : `📍 ${km.toFixed(1)} km • Taxa R$ ${deliveryFee.toFixed(2)}`;
+  return {km, fee: deliveryFee};
 }
 
-function renderReviews(){
-  $("reviews").innerHTML=`
-    <div class="review"><strong>Ana</strong> ⭐⭐⭐⭐⭐</div>
-    <div class="review"><strong>Marcos</strong> ⭐⭐⭐⭐⭐</div>
-  `;
+/* ================= WHATS ================= */
+async function sendWhats(){
+  if(!cart.length) return alert("Carrinho vazio");
+
+  const street=$("street").value.trim(), number=$("number").value.trim(), district=$("district").value.trim();
+  const payment=$("payment").value, obs=$("obs").value.trim();
+  if(!street||!number||!district||!payment) return alert("Preencha endereço e pagamento");
+
+  const addr = `${street}, ${number}, ${district}, Goiânia - GO`;
+  const calc = await calculateDelivery(addr);
+
+  let msg="🧾 *Pedido Bella Massa*%0A%0A", total=0;
+  cart.forEach(i=>{total+=i.total; msg+=`• ${i.desc} — R$ ${i.total.toFixed(2)}%0A`;});
+  total+=calc.fee;
+
+  msg+=`%0A🚚 Entrega: R$ ${calc.fee.toFixed(2)}%0A`;
+  msg+=`*TOTAL:* R$ ${total.toFixed(2)}%0A`;
+  msg+=`📍 Endereço: ${addr}%0A💳 Pagamento: ${payment}%0A`;
+  if(obs) msg+=`💬 Obs: ${obs}`;
+
+  window.open(`https://wa.me/${data.store.phone}?text=${msg}`);
 }
