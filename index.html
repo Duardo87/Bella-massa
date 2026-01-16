@@ -2,18 +2,74 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Bella Massa Pizzaria</title>
+
+  <title>Bella Massa Pizzaria 🍕 Delivery em Goiânia</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Bella Massa Pizzaria 🍕 Delivery rápido em Goiânia. Promoções todos os dias.">
+  <meta name="description" content="Bella Massa Pizzaria 🍕 Delivery em Goiânia. Peça online com borda e adicionais e envie direto no WhatsApp.">
+
+  <!-- SEO -->
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Bella Massa Pizzaria">
+
+  <!-- OPEN GRAPH -->
+  <meta property="og:title" content="Bella Massa Pizzaria 🍕">
+  <meta property="og:description" content="Delivery em Goiânia • Peça online pelo WhatsApp">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+
+  <!-- SCHEMA LOCAL -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Restaurant",
+    "name":"Bella Massa Pizzaria",
+    "address":{
+      "@type":"PostalAddress",
+      "addressLocality":"Goiânia",
+      "addressRegion":"GO",
+      "addressCountry":"BR"
+    },
+    "servesCuisine":"Pizza",
+    "priceRange":"$$"
+  }
+  </script>
+
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:,">
 </head>
+
 <body>
 
 <header class="header">
   <h1 id="storeName">Bella Massa</h1>
   <a id="storePhone" target="_blank">WhatsApp</a>
 </header>
+<!-- CARROSSEL TOPO -->
+<section class="hero">
+  <div class="slides">
+    <div class="slide active">
+      <h2>🍕 Combo Campeão</h2>
+      <p>1 Pizza G + 1 Pizza M</p>
+      <strong>R$ 79,90</strong>
+      <button onclick="scrollToMenu()">Pedir agora</button>
+    </div>
 
+    <div class="slide">
+      <h2>⭐⭐⭐⭐⭐ Avaliada</h2>
+      <p>A melhor pizza do bairro</p>
+      <strong>Entrega rápida</strong>
+      <button onclick="scrollToMenu()">Ver cardápio</button>
+    </div>
+
+    <div class="slide">
+      <h2>🚚 Entrega Grátis</h2>
+      <p>Até 3km • Hoje</p>
+      <strong>⏰ Até 23:30</strong>
+      <button onclick="scrollToMenu()">Pedir agora</button>
+    </div>
+  </div>
+</section>
 <section id="promoBanner" class="promo hidden">
   <h2 id="promoTitle"></h2>
   <strong id="promoPrice"></strong>
@@ -23,19 +79,22 @@
 <nav id="categories" class="categories"></nav>
 <main id="products" class="products"></main>
 
-<button id="btnCart" class="btn-cart">🛒 Ver pedido</button>
+<button id="btnCart" class="btn-cart">🛒 Finalizar pedido</button>
 
 <aside id="cartBox" class="cart hidden">
-  <h3>Pedido</h3>
+  <h3>🧾 Seu pedido</h3>
+
   <div id="cartItems"></div>
 
-  <label>🏠 Endereço de entrega</label>
+  <label>📍 Endereço</label>
   <input id="street" placeholder="Rua">
   <input id="number" placeholder="Número">
   <input id="district" placeholder="Bairro">
+
+  <button onclick="useMyLocation()">📍 Usar minha localização</button>
   <p id="deliveryInfo"></p>
 
-  <label>💳 Forma de pagamento</label>
+  <label>💳 Pagamento</label>
   <select id="payment">
     <option value="">Selecione</option>
     <option>Dinheiro</option>
@@ -43,21 +102,51 @@
     <option>Cartão</option>
   </select>
 
-  <label>💬 Observação</label>
+  <label>💬 Observações</label>
   <textarea id="obs"></textarea>
 
   <strong id="cartTotal"></strong>
-  <button onclick="sendWhats()">Enviar WhatsApp</button>
+  <button onclick="sendWhats()">Enviar no WhatsApp</button>
 </aside>
+<section class="reviews">
+  <h3>⭐ Avaliações de clientes</h3>
 
-<!-- MODAL TAMANHO -->
+  <div class="review">
+    <img src="https://i.pravatar.cc/80?img=32">
+    <div>
+      <strong>Ana Paula</strong>
+      <p>Pizza maravilhosa, chegou rapidinho 😍</p>
+    </div>
+  </div>
+
+  <div class="review">
+    <img src="https://i.pravatar.cc/80?img=12">
+    <div>
+      <strong>Marcos Silva</strong>
+      <p>Massa leve, bem recheada. Recomendo!</p>
+    </div>
+  </div>
+
+  <div class="review">
+    <img src="https://i.pravatar.cc/80?img=45">
+    <div>
+      <strong>Juliana Rocha</strong>
+      <p>Virou nossa pizzaria favorita 🍕❤️</p>
+    </div>
+  </div>
+</section>
+<!-- MODAL -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
-    <h3>📏 Escolha o tamanho</h3>
+    <h3>🍕 Monte sua pizza</h3>
+
     <div id="sizeOptions"></div>
+    <div id="borderOptions"></div>
+    <div id="extraOptions"></div>
+
     <div class="step-actions">
       <button onclick="closeModal()">Cancelar</button>
-      <button onclick="confirmSize()">Adicionar</button>
+      <button onclick="confirmProduct()">Adicionar</button>
     </div>
   </div>
 </div>
