@@ -27,6 +27,16 @@
 
   <hr>
 
+  <h2>🚚 Taxa de Entrega</h2>
+  <input id="storeLat" placeholder="Latitude da loja">
+  <input id="storeLng" placeholder="Longitude da loja">
+  <input id="freeKm" placeholder="KM grátis">
+  <input id="priceKm" placeholder="Preço por KM (R$)">
+  <input id="maxKm" placeholder="KM máximo">
+  <button onclick="saveDelivery()">Salvar entrega</button>
+
+  <hr>
+
   <h2>📂 Categorias</h2>
   <input id="catName" placeholder="Nova categoria">
   <button onclick="addCategory()">Adicionar</button>
@@ -66,8 +76,10 @@
   <div id="borderList"></div>
 
   <hr>
-<h2>🔥 Promoção por Dia da Semana</h2>
-<div id="promoWeek"></div>
+
+  <h2>🔥 Promoção por Dia da Semana</h2>
+  <div id="promoWeek"></div>
+
   <hr>
 
   <button onclick="exportAppJSON()">⬇ Exportar app.json</button>
