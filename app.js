@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   data.products ||= [];
   data.extras ||= [];
   data.borders ||= [];
+  data.promoWeek ||= {};
   data.storeInfo ||= { deliveryTime:"30 - 50 min", address:"", minOrder:0 };
 
   storeName.textContent = data.store.name || "Loja";
@@ -35,8 +36,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   btnCart.onclick = () => cartBox.classList.toggle("hidden");
 
+  renderWeeklyPromo();
   renderCategories();
 });
+
+/* ================= PROMO WEEK ================= */
+function renderWeeklyPromo(){
+  const days = ["sun","mon","tue","wed","thu","fri","sat"];
+  const today = days[new Date().getDay()];
+  const promo = data.promoWeek[today];
+
+  if(!promo || !promo.active) return;
+
+  const promoBox = document.createElement("div");
+  promoBox.style.background = "#0f0f0f";
+  promoBox.style.color = "#fff";
+  promoBox.style.padding = "14px";
+  promoBox.style.margin = "10px";
+  promoBox.style.borderRadius = "16px";
+  promoBox.style.fontWeight = "700";
+
+  promoBox.innerHTML = `
+    🔥 ${promo.title}
+    <div style="font-size:14px;font-weight:400;margin-top:4px">
+      Apenas R$ ${Number(promo.price).toFixed(2)}
+    </div>
+  `;
+
+  document.body.insertBefore(promoBox, document.body.firstChild);
+}
 
 /* ================= CATEGORIES ================= */
 function renderCategories(){
@@ -94,7 +122,7 @@ function openModal(id){
             data-name="${p.name}"
             data-price="${getBasePrice(p)}">
           <strong>🍕 ${p.name}</strong>
-          <span class="priceTag" style="float:right;font-weight:700">
+          <span style="float:right;font-weight:700">
             R$ ${getBasePrice(p).toFixed(2)}
           </span>
           <div style="font-size:13px;color:#666;margin-left:22px;margin-top:4px">
