@@ -4,23 +4,16 @@
   <meta charset="UTF-8">
   <title>Bella Massa Pizzaria</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- SEO básico -->
-  <meta name="description" content="Peça pizza online na Bella Massa. Entrega rápida em Goiânia.">
-  <meta property="og:title" content="Bella Massa Pizzaria">
-  <meta property="og:type" content="website">
-
+  <meta name="description" content="Peça pizza online na Bella Massa.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- TOPO -->
 <header class="topbar">
   <span id="storeName">Bella Massa</span>
   <a id="storePhone" target="_blank">WhatsApp</a>
 </header>
 
-<!-- BARRA DE INFORMAÇÕES (IGUAL PRINT) -->
 <section class="store-info">
   <div>
     <strong id="storeDeliveryTime">30 - 50 min</strong>
@@ -30,23 +23,18 @@
     <strong id="storeAddress">Goiânia</strong>
   </div>
   <div>
-    <strong id="storeMinOrder">R$ 49,90</strong>
+    <strong id="storeMinOrder">R$ 0,00</strong>
     <span>Pedido mínimo</span>
   </div>
 </section>
 
-<!-- HERO / CARROSSEL -->
 <section class="hero">
   <div id="heroSlides"></div>
 </section>
 
-<!-- CATEGORIAS -->
 <div class="categories" id="categories"></div>
-
-<!-- PRODUTOS -->
 <div class="products" id="products"></div>
 
-<!-- MODAL PRODUTO -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
     <h3 id="modalTitle"></h3>
@@ -58,7 +46,6 @@
   </div>
 </div>
 
-<!-- CARRINHO -->
 <div id="cartBox" class="cart hidden">
   <h3>Seu pedido</h3>
   <div id="cartItems"></div>
@@ -79,11 +66,9 @@
   </select>
 
   <textarea id="obs" placeholder="Observações"></textarea>
-
   <button onclick="sendWhats()">Enviar no WhatsApp</button>
 </div>
 
-<!-- BOTÃO CARRINHO -->
 <button id="btnCart" class="floating-cart">🛒</button>
 
 <script src="app.js"></script>
