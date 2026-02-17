@@ -1,75 +1,87 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Bella Massa Pizzaria</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Peça pizza online na Bella Massa.">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bella Massa 🍕</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 
-<header class="topbar">
-  <span id="storeName">Bella Massa</span>
-  <a id="storePhone" target="_blank">WhatsApp</a>
+<header class="top">
+  <div class="logo">Bella Massa 🍕</div>
+  <div class="status">
+    <span id="statusLoja" class="open"></span>
+    <span id="horario"></span>
+  </div>
+  <div class="info">
+    <span id="tempoEntrega"></span>
+    <span>📍 Flores do Cerrado – Goiânia</span>
+  </div>
 </header>
 
-<section class="store-info">
-  <div>
-    <strong id="storeDeliveryTime">30 - 50 min</strong>
-    <span>Entrega</span>
-  </div>
-  <div>
-    <strong id="storeAddress">Goiânia</strong>
-  </div>
-  <div>
-    <strong id="storeMinOrder">R$ 0,00</strong>
-    <span>Pedido mínimo</span>
-  </div>
-</section>
+<section class="carousel" id="carousel"></section>
+<div class="urgencia" id="promoDia"></div>
 
-<section class="hero">
-  <div id="heroSlides"></div>
-</section>
+<nav class="categorias" id="categorias"></nav>
+<main id="produtos"></main>
 
-<div class="categories" id="categories"></div>
-<div class="products" id="products"></div>
+<a href="#" id="btnWhats" class="btn-whats">🍕 PEDIR AGORA</a>
 
-<div id="modal" class="modal hidden">
-  <div class="modal-content">
-    <h3 id="modalTitle"></h3>
-    <div id="sizeOptions"></div>
-    <div id="borderOptions"></div>
-    <div id="extraOptions"></div>
-    <button onclick="confirmProduct()">Adicionar</button>
-    <button onclick="closeModal()">Cancelar</button>
-  </div>
+<div class="cart-btn" id="openCart">
+  🛒 Carrinho (<span id="cartQtd">0</span>)
 </div>
 
-<div id="cartBox" class="cart hidden">
-  <h3>Seu pedido</h3>
+<div class="cart" id="cart">
+  <h2>🛒 Seu Pedido</h2>
   <div id="cartItems"></div>
-  <p id="deliveryInfo"></p>
-  <strong id="cartTotal"></strong>
 
-  <input id="street" placeholder="Rua">
-  <input id="number" placeholder="Número">
-  <input id="district" placeholder="Bairro">
+  <input id="endereco" placeholder="Endereço completo"/>
+  <textarea id="obsGeral" placeholder="Observações gerais"></textarea>
 
-  <button onclick="useMyLocation()">📍 Usar minha localização</button>
+  <div class="upsell" id="upsell"></div>
 
-  <select id="payment">
-    <option value="">Pagamento</option>
-    <option>Pix</option>
-    <option>Dinheiro</option>
-    <option>Cartão</option>
-  </select>
+  <div class="resumo">
+    <div><span>Subtotal</span><span id="subtotal">R$ 0,00</span></div>
+    <div><span>Taxa</span><span id="taxa">R$ 0,00</span></div>
+    <div class="total-final"><span>Total</span><span id="cartTotal">R$ 0,00</span></div>
+  </div>
 
-  <textarea id="obs" placeholder="Observações"></textarea>
-  <button onclick="sendWhats()">Enviar no WhatsApp</button>
+  <button id="finalizar">FINALIZAR NO WHATSAPP</button>
 </div>
 
-<button id="btnCart" class="floating-cart">🛒</button>
+<div class="modal" id="pizzaModal">
+  <div class="modal-content">
+    <span class="close" id="closeModal">&times;</span>
+    <h2 id="modalNome"></h2>
+    <p id="modalDesc"></p>
+
+    <div class="modal-section">
+      <h3>Tamanho</h3>
+      <div class="opcoes" id="tamanhos"></div>
+    </div>
+
+    <div class="modal-section">
+      <h3>Sabores (até 2)</h3>
+      <p class="aviso" id="avisoMeio"></p>
+      <p class="aviso limite" id="avisoLimite"></p>
+      <div class="sabores" id="sabores"></div>
+    </div>
+
+    <div class="modal-section">
+      <h3>Bordas e Adicionais</h3>
+      <div class="extras" id="extrasModal"></div>
+    </div>
+
+    <textarea id="obsItem" placeholder="Observação da pizza"></textarea>
+
+    <div class="modal-footer">
+      <strong>Total: R$ <span id="modalTotal">0,00</span></strong>
+      <button id="addPizza">Adicionar</button>
+    </div>
+  </div>
+</div>
 
 <script src="app.js"></script>
 </body>

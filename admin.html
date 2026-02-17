@@ -1,88 +1,170 @@
+<!-- admin.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin • Cardápio</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin - Painel</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* pequenas adaptações visuais para o admin sem alterar o styles.css principal */
+    body.admin-body{background:#f7f7f9;padding:18px;font-family:Arial,Helvetica,sans-serif}
+    .admin{max-width:1100px;margin:14px auto}
+    .card{background:#fff;padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:12px}
+    .card h3{margin-bottom:8px}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .row > *{flex:1;min-width:180px}
+    label{display:block;font-weight:700;margin-bottom:6px}
+    input[type="text"], input[type="number"], textarea, select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
+    button{padding:10px 12px;border-radius:10px;border:none;background:#0a7d45;color:#fff;font-weight:800;cursor:pointer}
+    .muted{color:#666;font-size:13px}
+    .small{padding:6px 8px;font-size:13px}
+    .list{margin-top:8px}
+    .list-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;border:1px solid #eee;margin-bottom:8px;background:#fafafa}
+    .list-item .meta{flex:1}
+    .toggle{cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid #ccc;background:#fff}
+    .actions button{margin-left:6px;background:#e53935}
+    .img-preview{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
+    .hidden{display:none}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+    .login-box{max-width:420px;margin:12px auto;padding:16px;border-radius:12px;background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.06)}
+    .link-like{background:transparent;border:0;color:#0a7d45;cursor:pointer;font-weight:700}
+  </style>
 </head>
-<body>
+<body class="admin-body">
 
-<!-- LOGIN -->
-<div id="loginBox">
-  <h2>Login Admin</h2>
-  <input id="loginUser" placeholder="Usuário">
-  <input id="loginPass" type="password" placeholder="Senha">
-  <button onclick="loginAdmin()">Entrar</button>
+<div id="loginSection" class="login-box">
+  <h2>🔐 Painel de Administração</h2>
+  <p class="muted">Faça login para acessar as configurações da pizzaria.</p>
+  <label for="adminPasswordInput">Senha</label>
+  <input id="adminPasswordInput" type="password" placeholder="Senha do admin (padrão: admin123)"/>
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <button id="btnLogin">Entrar</button>
+    <button id="btnImportQuick" class="small">Importar app.json</button>
+    <input id="fileImport" type="file" accept="application/json" class="hidden"/>
+  </div>
 </div>
 
-<!-- ADMIN -->
-<div id="admin" class="hidden">
+<div id="adminApp" class="admin hidden" aria-hidden="true">
+  <div class="topbar">
+    <h2 id="adminTitle">🍕 Admin</h2>
+    <div>
+      <button id="btnLogout" class="small">Sair</button>
+      <button id="btnExport" class="small">Exportar JSON</button>
+      <button id="btnSaveAll" class="small">Salvar</button>
+    </div>
+  </div>
 
-  <h2>🏪 Dados da Loja</h2>
-  <input id="storeName" placeholder="Nome da loja">
-  <input id="storePhone" placeholder="WhatsApp">
-  <input id="openTime" type="time">
-  <input id="closeTime" type="time">
-  <button onclick="saveStore()">Salvar loja</button>
+  <div class="card">
+    <h3>1 — Configurações Gerais</h3>
+    <div class="row">
+      <div>
+        <label>Nome da Pizzaria</label>
+        <input id="nomePizzaria">
+      </div>
+      <div>
+        <label>WhatsApp (somente números)</label>
+        <input id="whatsapp">
+      </div>
+      <div>
+        <label>Status da Loja</label>
+        <select id="lojaAberta">
+          <option value="true">Aberta</option>
+          <option value="false">Fechada</option>
+        </select>
+      </div>
+      <div>
+        <label>Horário</label>
+        <input id="horario">
+      </div>
+    </div>
 
-  <hr>
+    <div style="margin-top:10px" class="row">
+      <div>
+        <label>Pedido mínimo (R$)</label>
+        <input id="pedidoMinimo" type="number" step="0.01">
+      </div>
+      <div>
+        <label>Km grátis</label>
+        <input id="kmGratis" type="number" step="0.1">
+      </div>
+      <div>
+        <label>Valor por km (R$)</label>
+        <input id="valorKm" type="number" step="0.01">
+      </div>
+      <div>
+        <label>Limite de km</label>
+        <input id="limiteKm" type="number" step="0.1">
+      </div>
+    </div>
 
-  <h2>🚚 Taxa de Entrega</h2>
-  <input id="storeLat" placeholder="Latitude da loja">
-  <input id="storeLng" placeholder="Longitude da loja">
-  <input id="freeKm" placeholder="KM grátis">
-  <input id="priceKm" placeholder="Preço por KM (R$)">
-  <input id="maxKm" placeholder="KM máximo">
-  <button onclick="saveDelivery()">Salvar entrega</button>
+    <div style="margin-top:10px">
+      <label>Mensagem de aviso (promoções / aviso meio a meio)</label>
+      <textarea id="mensagensAviso" rows="2"></textarea>
+    </div>
 
-  <hr>
+    <div style="margin-top:10px">
+      <label>Tempo de entrega (texto)</label>
+      <input id="tempoEntrega" type="text">
+    </div>
 
-  <h2>📂 Categorias</h2>
-  <input id="catName" placeholder="Nova categoria">
-  <button onclick="addCategory()">Adicionar</button>
-  <div id="catList"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+      <label style="margin:0">Alterar senha do admin</label>
+      <input id="novaSenha" placeholder="Nova senha (vazio = mantém)">
+      <button id="btnChangePass" class="small">Alterar</button>
+    </div>
+  </div>
 
-  <hr>
+  <div class="card">
+    <h3>2 — Categorias</h3>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="novaCategoria" placeholder="Nome da categoria">
+      <button id="btnAddCategoria">Adicionar</button>
+    </div>
+    <div id="categoriasList" class="list"></div>
+    <p class="muted">Use os botões para editar, ativar/desativar e reordenar (ordem controla exibição no site).</p>
+  </div>
 
-  <h2>🍕 Produtos</h2>
-  <input id="prodName" placeholder="Nome do produto">
-  <input id="prodDesc" placeholder="Descrição">
-  <select id="prodCat"></select>
+  <div class="card">
+    <h3>3 — Produtos</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <input id="prodNome" placeholder="Nome do produto">
+      <select id="prodCategoria"></select>
+      <input id="prodPrecoP" placeholder="Preço P" type="number" step="0.01">
+      <input id="prodPrecoM" placeholder="Preço M" type="number" step="0.01">
+      <input id="prodPrecoG" placeholder="Preço G" type="number" step="0.01">
+    </div>
 
-  <input id="priceP" placeholder="Preço P">
-  <input id="priceM" placeholder="Preço M">
-  <input id="priceG" placeholder="Preço G">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <input id="prodDesc" placeholder="Descrição" style="flex:2">
+      <input id="prodMaisVendido" type="checkbox"> <label class="muted">Mais vendido</label>
+      <input id="prodFile" type="file" accept="image/*">
+      <img id="prodPreview" class="img-preview" src="" alt="preview">
+      <button id="btnAddProd">Criar produto</button>
+    </div>
 
-  <input id="prodFlavors" placeholder="Máx sabores">
-  <input id="prodImage" type="file" accept="image/*">
+    <div id="produtosList" class="list"></div>
+    <p class="muted">Editar produto carrega os campos acima para alteração.</p>
+  </div>
 
-  <button onclick="addProduct()">Adicionar produto</button>
-  <div id="productList"></div>
+  <div class="card">
+    <h3>4 — Extras & Bordas</h3>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="extraNome" placeholder="Nome">
+      <input id="extraPreco" type="number" step="0.01" placeholder="Preço">
+      <button id="btnAddExtra">Adicionar</button>
+    </div>
+    <div id="extrasList" class="list"></div>
+  </div>
 
-  <hr>
-
-  <h2>➕ Adicionais</h2>
-  <input id="extraName" placeholder="Nome">
-  <input id="extraPrice" placeholder="Preço">
-  <button onclick="addExtra()">Adicionar</button>
-  <div id="extraList"></div>
-
-  <hr>
-
-  <h2>🥖 Bordas</h2>
-  <input id="borderName" placeholder="Nome">
-  <input id="borderPrice" placeholder="Preço">
-  <button onclick="addBorder()">Adicionar</button>
-  <div id="borderList"></div>
-
-  <hr>
-
-  <h2>🔥 Promoção por Dia da Semana</h2>
-  <div id="promoWeek"></div>
-
-  <hr>
-
-  <button onclick="exportAppJSON()">⬇ Exportar app.json</button>
+  <div class="card">
+    <h3>5 — Backup / Import / Export</h3>
+    <div style="display:flex;gap:8px">
+      <button id="btnExportFile">Exportar app.json</button>
+      <input id="fileImport2" type="file" accept="application/json">
+      <button id="btnImportFile" class="small">Importar arquivo</button>
+    </div>
+  </div>
 
 </div>
 

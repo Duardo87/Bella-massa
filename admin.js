@@ -1,258 +1,440 @@
-/* =========================
-   ADMIN.JS FINAL
-========================= */
+// admin.js
+// Painel de administração - controla 100% do site via localStorage (chave: appData)
+// Proteção simples por senha (persistente). Sessão persistente.
 
-const STORAGE_KEY = "admin-data";
-const AUTH_KEY = "__admin_auth__";
-const $ = id => document.getElementById(id);
-const uid = () => Date.now() + Math.floor(Math.random() * 1000);
+(() => {
+  const LS_KEY = "appData";
+  const LS_PASS = "adminPassword";
+  const LS_SESSION = "adminLogged";
+  let data = null;
+  let editingProductIndex = null;
 
-/* ===== LOGIN BLINDADO ===== */
-function loginAdmin(){
-  const u = loginUser.value.trim();
-  const p = loginPass.value.trim();
-  if(!u || !p) return alert("Informe usuário e senha");
+  // elements
+  const loginSection = document.getElementById("loginSection");
+  const adminApp = document.getElementById("adminApp");
+  const adminTitle = document.getElementById("adminTitle");
+  const btnLogin = document.getElementById("btnLogin");
+  const adminPasswordInput = document.getElementById("adminPasswordInput");
+  const btnLogout = document.getElementById("btnLogout");
+  const btnExport = document.getElementById("btnExport");
+  const btnExportFile = document.getElementById("btnExportFile");
+  const btnImportFile = document.getElementById("btnImportFile");
+  const fileImport = document.getElementById("fileImport");
+  const fileImport2 = document.getElementById("fileImport2");
+  const btnSaveAll = document.getElementById("btnSaveAll");
+  const novaSenha = document.getElementById("novaSenha");
+  const btnChangePass = document.getElementById("btnChangePass");
+  const btnImportQuick = document.getElementById("btnImportQuick");
 
-  const saved = JSON.parse(localStorage.getItem(AUTH_KEY));
-  if(!saved){
-    localStorage.setItem(AUTH_KEY, JSON.stringify({u:btoa(u),p:btoa(p)}));
-  } else if(btoa(u)!==saved.u || btoa(p)!==saved.p){
-    return alert("Login inválido");
+  // general config
+  const nomePizzaria = document.getElementById("nomePizzaria");
+  const whatsapp = document.getElementById("whatsapp");
+  const lojaAberta = document.getElementById("lojaAberta");
+  const horario = document.getElementById("horario");
+  const pedidoMinimo = document.getElementById("pedidoMinimo");
+  const kmGratis = document.getElementById("kmGratis");
+  const valorKm = document.getElementById("valorKm");
+  const limiteKm = document.getElementById("limiteKm");
+  const mensagensAviso = document.getElementById("mensagensAviso");
+  const tempoEntrega = document.getElementById("tempoEntrega");
+
+  // categorias
+  const novaCategoria = document.getElementById("novaCategoria");
+  const btnAddCategoria = document.getElementById("btnAddCategoria");
+  const categoriasList = document.getElementById("categoriasList");
+  const prodCategoria = document.getElementById("prodCategoria");
+
+  // produtos
+  const prodNome = document.getElementById("prodNome");
+  const prodPrecoP = document.getElementById("prodPrecoP");
+  const prodPrecoM = document.getElementById("prodPrecoM");
+  const prodPrecoG = document.getElementById("prodPrecoG");
+  const prodDesc = document.getElementById("prodDesc");
+  const prodMaisVendido = document.getElementById("prodMaisVendido");
+  const prodFile = document.getElementById("prodFile");
+  const prodPreview = document.getElementById("prodPreview");
+  const btnAddProd = document.getElementById("btnAddProd");
+  const produtosList = document.getElementById("produtosList");
+
+  // extras
+  const extraNome = document.getElementById("extraNome");
+  const extraPreco = document.getElementById("extraPreco");
+  const btnAddExtra = document.getElementById("btnAddExtra");
+  const extrasList = document.getElementById("extrasList");
+
+  // utility
+  function fetchDefaultJson() {
+    return fetch("app.json").then(r => r.json()).catch(() => ({}));
   }
 
-  loginBox.classList.add("hidden");
-  admin.classList.remove("hidden");
-  loadAdmin();
-}
-
-/* ===== DATABASE ===== */
-function loadDB(){
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-    store:{},
-    delivery:{},
-    categories:[],
-    products:[],
-    extras:[],
-    borders:[],
-    promoWeek:{}
-  };
-}
-function saveDB(d){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
-}
-
-/* ===== INIT ===== */
-function loadAdmin(){
-  const d = loadDB();
-
-  // loja
-  storeName.value = d.store.name || "";
-  storePhone.value = d.store.phone || "";
-  openTime.value = d.store.open || "";
-  closeTime.value = d.store.close || "";
-
-  // entrega (valores padrão já corretos)
-  storeLat.value = d.delivery.lat ?? -16.6289;
-  storeLng.value = d.delivery.lng ?? -49.3577;
-  freeKm.value   = d.delivery.freeKm ?? 3;
-  priceKm.value  = d.delivery.priceKm ?? 2;
-  maxKm.value    = d.delivery.maxKm ?? 10;
-
-  renderCategories();
-  renderProducts();
-  renderExtras();
-  renderBorders();
-  renderPromoWeek();
-}
-
-/* ===== STORE ===== */
-function saveStore(){
-  const d = loadDB();
-  d.store = {
-    name: storeName.value,
-    phone: storePhone.value.replace(/\D/g,""),
-    open: openTime.value,
-    close: closeTime.value
-  };
-  saveDB(d);
-  alert("Loja salva");
-}
-
-/* ===== ENTREGA ===== */
-function saveDelivery(){
-  const d = loadDB();
-  d.delivery = {
-    lat: Number(storeLat.value),
-    lng: Number(storeLng.value),
-    freeKm: Number(freeKm.value),
-    priceKm: Number(priceKm.value),
-    maxKm: Number(maxKm.value)
-  };
-  saveDB(d);
-  alert("Entrega salva");
-}
-
-/* ===== CATEGORIAS ===== */
-function addCategory(){
-  const d = loadDB();
-  if(!catName.value.trim()) return;
-  d.categories.push({id:uid(),name:catName.value,order:d.categories.length+1,active:true});
-  catName.value="";
-  saveDB(d); renderCategories();
-}
-function renderCategories(){
-  const d = loadDB();
-  catList.innerHTML = d.categories.sort((a,b)=>a.order-b.order).map((c,i)=>`
-    <div class="row">
-      <input value="${c.name}" onchange="editCategory(${c.id},this.value)">
-      <button onclick="toggleCategory(${c.id})">${c.active?"👁":"⏸"}</button>
-      <button onclick="moveCategory(${i},-1)">⬆</button>
-      <button onclick="moveCategory(${i},1)">⬇</button>
-      <button onclick="deleteCategory(${c.id})">🗑</button>
-    </div>`).join("");
-
-  prodCat.innerHTML = d.categories.filter(c=>c.active)
-    .map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
-}
-function editCategory(id,val){
-  const d=loadDB(); d.categories.find(c=>c.id===id).name=val; saveDB(d);
-}
-function toggleCategory(id){
-  const d=loadDB(); const c=d.categories.find(c=>c.id===id);
-  c.active=!c.active; saveDB(d); renderCategories();
-}
-function moveCategory(i,dir){
-  const d=loadDB(); const a=d.categories.sort((a,b)=>a.order-b.order);
-  if(!a[i+dir]) return; [a[i].order,a[i+dir].order]=[a[i+dir].order,a[i].order];
-  saveDB(d); renderCategories();
-}
-function deleteCategory(id){
-  if(!confirm("Apagar categoria e produtos?")) return;
-  const d=loadDB();
-  d.categories=d.categories.filter(c=>c.id!==id);
-  d.products=d.products.filter(p=>p.categoryId!==id);
-  saveDB(d); renderCategories(); renderProducts();
-}
-
-/* ===== PRODUTOS ===== */
-function addProduct(){
-  const d=loadDB();
-  if(!prodName.value.trim()) return;
-
-  const p={
-    id:uid(),
-    categoryId:+prodCat.value,
-    name:prodName.value,
-    desc:prodDesc.value,
-    prices:{P:+priceP.value||null,M:+priceM.value||null,G:+priceG.value||null},
-    maxFlavors:+prodFlavors.value||1,
-    image:null,
-    featured:false,
-    order:d.products.length+1,
-    active:true
-  };
-
-  const f=prodImage.files[0];
-  if(f){
-    const r=new FileReader();
-    r.onload=()=>{ p.image=r.result; d.products.push(p); saveDB(d); renderProducts(); clearProduct(); };
-    r.readAsDataURL(f);
-  } else {
-    d.products.push(p); saveDB(d); renderProducts(); clearProduct();
+  async function loadData() {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      try {
+        data = JSON.parse(raw);
+        return;
+      } catch(e){}
+    }
+    data = await fetchDefaultJson();
+    // normalize structure
+    data.config = data.config || {};
+    data.categorias = Array.isArray(data.categorias) ? data.categorias.map(c => typeof c === "string" ? {nome:c, ativo:true} : {...c, ativo: c.ativo!==false}) : [];
+    data.produtos = data.produtos || [];
+    data.bordas = data.bordas || [];
+    data.adicionais = data.adicionais || [];
+    data.bebidas = data.bebidas || [];
+    data.ofertas = data.ofertas || [];
+    data.promocoes = data.promocoes || [];
+    saveLocal(false);
   }
-}
-function clearProduct(){
-  prodName.value=prodDesc.value=priceP.value=priceM.value=priceG.value=prodFlavors.value="";
-  prodImage.value="";
-}
-function renderProducts(){
-  const d=loadDB();
-  productList.innerHTML=d.products.sort((a,b)=>a.order-b.order).map((p,i)=>`
-    <div class="row">
-      <input value="${p.name}" onchange="editProduct(${p.id},'name',this.value)">
-      <input value="${p.desc||""}" onchange="editProduct(${p.id},'desc',this.value)">
-      <input value="${p.prices.P||""}" onchange="editPrice(${p.id},'P',this.value)" placeholder="P">
-      <input value="${p.prices.M||""}" onchange="editPrice(${p.id},'M',this.value)" placeholder="M">
-      <input value="${p.prices.G||""}" onchange="editPrice(${p.id},'G',this.value)" placeholder="G">
-      <label>
-        ⭐ <input type="checkbox" ${p.featured?"checked":""} onchange="toggleFeatured(${p.id},this.checked)">
-      </label>
-      <button onclick="toggleProduct(${p.id})">${p.active?"👁":"⏸"}</button>
-      <button onclick="moveProduct(${i},-1)">⬆</button>
-      <button onclick="moveProduct(${i},1)">⬇</button>
-      <button onclick="deleteProduct(${p.id})">🗑</button>
-    </div>`).join("");
-}
-function editProduct(id,f,v){ const d=loadDB(); d.products.find(p=>p.id===id)[f]=v; saveDB(d); }
-function editPrice(id,s,v){ const d=loadDB(); d.products.find(p=>p.id===id).prices[s]=v?+v:null; saveDB(d); }
-function toggleFeatured(id,val){ const d=loadDB(); d.products.find(p=>p.id===id).featured=val; saveDB(d); }
-function toggleProduct(id){ const d=loadDB(); const p=d.products.find(p=>p.id===id); p.active=!p.active; saveDB(d); renderProducts(); }
-function moveProduct(i,dir){
-  const d=loadDB(); const a=d.products.sort((a,b)=>a.order-b.order);
-  if(!a[i+dir]) return; [a[i].order,a[i+dir].order]=[a[i+dir].order,a[i].order];
-  saveDB(d); renderProducts();
-}
-function deleteProduct(id){
-  if(!confirm("Apagar produto?")) return;
-  const d=loadDB(); d.products=d.products.filter(p=>p.id!==id);
-  saveDB(d); renderProducts();
-}
 
-/* ===== EXTRAS ===== */
-function addExtra(){
-  const d=loadDB(); if(!extraName.value.trim()) return;
-  d.extras.push({id:uid(),name:extraName.value,price:+extraPrice.value,active:true});
-  extraName.value=extraPrice.value=""; saveDB(d); renderExtras();
-}
-function renderExtras(){
-  const d=loadDB();
-  extraList.innerHTML=d.extras.map(e=>`
-    <div class="row">
-      <input value="${e.name}" onchange="editExtra(${e.id},'name',this.value)">
-      <input value="${e.price}" onchange="editExtra(${e.id},'price',this.value)">
-      <button onclick="deleteExtra(${e.id})">🗑</button>
-    </div>`).join("");
-}
-function editExtra(id,f,v){ const d=loadDB(); d.extras.find(e=>e.id===id)[f]=f==="price"?+v:v; saveDB(d); }
-function deleteExtra(id){ const d=loadDB(); d.extras=d.extras.filter(e=>e.id!==id); saveDB(d); renderExtras(); }
+  function saveLocal(announce = true) {
+    localStorage.setItem(LS_KEY, JSON.stringify(data, null, 2));
+    if (announce) {
+      // notify other tabs
+      try {
+        localStorage.setItem("__appDataUpdatedAt", Date.now().toString());
+        window.dispatchEvent(new Event("appDataUpdated"));
+      } catch(e){}
+    }
+  }
 
-/* ===== BORDAS ===== */
-function addBorder(){
-  const d=loadDB(); if(!borderName.value.trim()) return;
-  d.borders.push({id:uid(),name:borderName.value,price:+borderPrice.value,active:true});
-  borderName.value=borderPrice.value=""; saveDB(d); renderBorders();
-}
-function renderBorders(){
-  const d=loadDB();
-  borderList.innerHTML=d.borders.map(b=>`
-    <div class="row">
-      <input value="${b.name}" onchange="editBorder(${b.id},'name',this.value)">
-      <input value="${b.price}" onchange="editBorder(${b.id},'price',this.value)">
-      <button onclick="deleteBorder(${b.id})">🗑</button>
-    </div>`).join("");
-}
-function editBorder(id,f,v){ const d=loadDB(); d.borders.find(b=>b.id===id)[f]=f==="price"?+v:v; saveDB(d); }
-function deleteBorder(id){ const d=loadDB(); d.borders=d.borders.filter(b=>b.id!==id); saveDB(d); renderBorders(); }
+  // render functions
+  function renderAdminTitle(){
+    adminTitle.innerText = `🍕 Admin — ${data.config.nomePizzaria || "Pizzaria"}`;
+  }
 
-/* ===== PROMO ===== */
-function renderPromoWeek(){
-  const d=loadDB(); const days=["Dom","Seg","Ter","Qua","Qui","Sex","Sab"];
-  promoWeek.innerHTML=days.map((day,i)=>`
-    <div class="row">
-      <strong>${day}</strong>
-      <input placeholder="Título" value="${d.promoWeek[i]?.title||""}" onchange="setPromo(${i},'title',this.value)">
-      <input type="number" placeholder="Preço" value="${d.promoWeek[i]?.price||""}" onchange="setPromo(${i},'price',this.value)">
-      <input type="checkbox" ${d.promoWeek[i]?.active?"checked":""} onchange="setPromo(${i},'active',this.checked)"> Ativa
-    </div>`).join("");
-}
-function setPromo(day,f,v){ const d=loadDB(); d.promoWeek[day]=d.promoWeek[day]||{}; d.promoWeek[day][f]=v; saveDB(d); }
+  function renderGeneral(){
+    nomePizzaria.value = data.config.nomePizzaria || "";
+    whatsapp.value = data.config.whatsapp || "";
+    lojaAberta.value = data.config.lojaAberta===false ? "false" : "true";
+    horario.value = data.config.horario || "";
+    pedidoMinimo.value = data.config.pedidoMinimo != null ? data.config.pedidoMinimo : "";
+    kmGratis.value = data.config.kmGratis != null ? data.config.kmGratis : "";
+    valorKm.value = data.config.valorKm != null ? data.config.valorKm : "";
+    limiteKm.value = data.config.limiteKm != null ? data.config.limiteKm : "";
+    mensagensAviso.value = typeof data.config.meioAMeio === "object" ? (data.config.meioAMeio.aviso||"") : (data.promocoes && data.promocoes[0] || "");
+    tempoEntrega.value = data.config.tempoEntrega || "";
+  }
 
-/* ===== EXPORT ===== */
-function exportAppJSON(){
-  const d=loadDB();
-  const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="app.json";
-  a.click();
-}
+  function renderCategorias(){
+    categoriasList.innerHTML = "";
+    prodCategoria.innerHTML = "";
+    data.categorias.forEach((c, idx) => {
+      const row = document.createElement("div"); row.className = "list-item";
+      const meta = document.createElement("div"); meta.className = "meta";
+      const title = document.createElement("div"); title.innerHTML = `<strong>${c.nome}</strong>`;
+      const sub = document.createElement("div"); sub.className = "muted"; sub.innerText = `Ativo: ${c.ativo!==false ? "Sim" : "Não"}`;
+      meta.appendChild(title); meta.appendChild(sub);
+
+      const actions = document.createElement("div"); actions.className = "actions";
+      const btnUp = document.createElement("button"); btnUp.textContent = "↑"; btnUp.className = "small";
+      const btnDown = document.createElement("button"); btnDown.textContent = "↓"; btnDown.className = "small";
+      const btnEdit = document.createElement("button"); btnEdit.textContent = "Editar"; btnEdit.className = "small";
+      const btnToggle = document.createElement("button"); btnToggle.textContent = c.ativo!==false ? "Desativar" : "Ativar"; btnToggle.className = "small";
+      const btnDel = document.createElement("button"); btnDel.textContent = "Remover"; btnDel.className = "small";
+
+      btnUp.onclick = () => { if(idx>0){ const tmp = data.categorias[idx-1]; data.categorias[idx-1]=data.categorias[idx]; data.categorias[idx]=tmp; saveLocal(); renderCategorias(); renderProdutosList(); } };
+      btnDown.onclick = () => { if(idx < data.categorias.length-1){ const tmp = data.categorias[idx+1]; data.categorias[idx+1]=data.categorias[idx]; data.categorias[idx]=tmp; saveLocal(); renderCategorias(); renderProdutosList(); } };
+      btnEdit.onclick = () => {
+        const novo = prompt("Editar nome da categoria", c.nome);
+        if(novo!==null && novo.trim()!==""){ data.categorias[idx].nome = novo.trim(); saveLocal(); renderCategorias(); renderProdutosList(); }
+      };
+      btnToggle.onclick = () => { data.categorias[idx].ativo = !data.categorias[idx].ativo; saveLocal(); renderCategorias(); renderProdutosList(); };
+      btnDel.onclick = () => {
+        if(confirm("Remover categoria? Isso NÃO removerá produtos (eles ficarão sem categoria).")) {
+          data.categorias.splice(idx,1); saveLocal(); renderCategorias(); renderProdutosList();
+        }
+      };
+
+      actions.appendChild(btnUp); actions.appendChild(btnDown); actions.appendChild(btnEdit); actions.appendChild(btnToggle); actions.appendChild(btnDel);
+      row.appendChild(meta); row.appendChild(actions);
+      categoriasList.appendChild(row);
+
+      // populate select
+      const opt = document.createElement("option"); opt.value = c.nome; opt.innerText = c.nome + (c.ativo===false ? " (inativa)" : "");
+      prodCategoria.appendChild(opt);
+    });
+  }
+
+  function renderProdutosList(){
+    produtosList.innerHTML = "";
+    data.produtos.forEach((p, idx) => {
+      const row = document.createElement("div"); row.className = "list-item";
+      const preview = document.createElement("img"); preview.className="img-preview";
+      preview.src = p.imagem || placeholderDataUri();
+      const meta = document.createElement("div"); meta.className="meta";
+      const title = document.createElement("div"); title.innerHTML = `<strong>${p.nome}</strong> ${p.maisVendido? "🔥":""}`;
+      const sub = document.createElement("div"); sub.className="muted";
+      const precos = p.precos || {};
+      sub.innerText = `${p.categoria || "—"} — P ${precos.P||"-"} / M ${precos.M||"-"} / G ${precos.G||"-"}`;
+      meta.appendChild(title); meta.appendChild(sub);
+
+      const actions = document.createElement("div"); actions.className="actions";
+      const btnEdit = document.createElement("button"); btnEdit.textContent = "Editar"; btnEdit.className="small";
+      const btnToggle = document.createElement("button"); btnToggle.textContent = p.ativo===false ? "Ativar" : "Desativar"; btnToggle.className="small";
+      const btnDel = document.createElement("button"); btnDel.textContent = "Excluir"; btnDel.className="small";
+
+      btnEdit.onclick = () => {
+        editingProductIndex = idx;
+        loadProductToForm(p);
+      };
+      btnToggle.onclick = () => { data.produtos[idx].ativo = !data.produtos[idx].ativo; saveLocal(); renderProdutosList(); };
+      btnDel.onclick = () => { if(confirm("Excluir produto?")){ data.produtos.splice(idx,1); saveLocal(); renderProdutosList(); } };
+
+      actions.appendChild(btnEdit); actions.appendChild(btnToggle); actions.appendChild(btnDel);
+      row.appendChild(preview); row.appendChild(meta); row.appendChild(actions);
+      produtosList.appendChild(row);
+    });
+  }
+
+  function renderExtras(){
+    extrasList.innerHTML = "";
+    const merged = [...(data.bordas||[]), ...(data.adicionais||[])];
+    merged.forEach((e, idx) => {
+      const row = document.createElement("div"); row.className="list-item";
+      const meta = document.createElement("div"); meta.className="meta";
+      meta.innerHTML = `<strong>${e.nome}</strong><div class="muted">R$ ${e.preco?.toFixed?.(2)||e.preco}</div>`;
+      const actions = document.createElement("div");
+      const btnDel = document.createElement("button"); btnDel.textContent="Remover"; btnDel.className="small";
+      btnDel.onclick = () => {
+        const targetList = idx < (data.bordas||[]).length ? "bordas" : "adicionais";
+        const realIdx = idx < (data.bordas||[]).length ? idx : idx - (data.bordas||[]).length;
+        if(confirm("Remover item?")){ data[targetList].splice(realIdx,1); saveLocal(); renderExtras(); }
+      };
+      actions.appendChild(btnDel);
+      row.appendChild(meta); row.appendChild(actions);
+      extrasList.appendChild(row);
+    });
+  }
+
+  // helpers
+  function placeholderDataUri(){
+    // simple SVG placeholder
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='#eee'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#bbb' font-size='20'>Sem imagem</text></svg>`;
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
+  }
+
+  function loadProductToForm(p){
+    prodNome.value = p.nome || "";
+    prodDesc.value = p.descricao || "";
+    prodPrecoP.value = (p.precos && p.precos.P) || "";
+    prodPrecoM.value = (p.precos && p.precos.M) || "";
+    prodPrecoG.value = (p.precos && p.precos.G) || "";
+    prodMaisVendido.checked = !!p.maisVendido;
+    prodPreview.src = p.imagem || placeholderDataUri();
+    prodCategoria.value = p.categoria || (data.categorias[0] && data.categorias[0].nome) || "";
+    btnAddProd.textContent = "Salvar alterações";
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  // actions
+  btnLogin.onclick = async () => {
+    const p = adminPasswordInput.value || "";
+    const stored = localStorage.getItem(LS_PASS) || "admin123";
+    if (p === stored) {
+      localStorage.setItem(LS_SESSION, "1");
+      showAdmin();
+    } else {
+      alert("Senha incorreta.");
+    }
+  };
+
+  btnLogout.onclick = () => {
+    localStorage.removeItem(LS_SESSION);
+    hideAdmin();
+  };
+
+  btnSaveAll.onclick = () => {
+    applyFormToData();
+    saveLocal();
+    alert("Salvo.");
+  };
+
+  btnExportFile.onclick = () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "app.json";
+    a.click();
+  };
+
+  btnExport.onclick = () => {
+    applyFormToData();
+    saveLocal();
+    alert("Dados salvos no localStorage.");
+  };
+
+  btnImportFile.onclick = () => fileImport2.click();
+  fileImport2.onchange = (e) => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        data = parsed;
+        saveLocal();
+        renderAll();
+        alert("Importado com sucesso.");
+      } catch(err){ alert("Arquivo inválido."); }
+    };
+    r.readAsText(f);
+  };
+
+  btnImportQuick.onclick = () => fileImport.click();
+  fileImport.onchange = (e) => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        data = parsed;
+        saveLocal();
+        renderAll();
+        alert("Importado com sucesso.");
+      } catch(err){ alert("Arquivo inválido."); }
+    };
+    r.readAsText(f);
+  };
+
+  btnAddCategoria.onclick = () => {
+    const nome = (novaCategoria.value || "").trim();
+    if(!nome) return alert("Nome vazio");
+    data.categorias.push({nome, ativo:true});
+    novaCategoria.value = "";
+    saveLocal();
+    renderCategorias();
+    renderProdutosList();
+  };
+
+  btnAddProd.onclick = () => {
+    const nome = (prodNome.value || "").trim();
+    if(!nome) return alert("Nome do produto vazio");
+    const precos = { P: parseFloat(prodPrecoP.value) || 0, M: parseFloat(prodPrecoM.value) || 0, G: parseFloat(prodPrecoG.value) || 0 };
+    const novo = {
+      nome,
+      categoria: prodCategoria.value || (data.categorias[0] && data.categorias[0].nome) || "",
+      descricao: prodDesc.value || "",
+      imagem: prodPreview.src || "",
+      maisVendido: !!prodMaisVendido.checked,
+      precos,
+      ativo: true
+    };
+    if(editingProductIndex == null){
+      data.produtos.push(novo);
+    } else {
+      data.produtos[editingProductIndex] = novo;
+      editingProductIndex = null;
+      btnAddProd.textContent = "Criar produto";
+    }
+    // reset
+    prodNome.value = "";
+    prodDesc.value = "";
+    prodPrecoP.value = prodPrecoM.value = prodPrecoG.value = "";
+    prodMaisVendido.checked = false;
+    prodPreview.src = "";
+    saveLocal();
+    renderProdutosList();
+  };
+
+  prodFile.onchange = (e) => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      prodPreview.src = ev.target.result; // base64
+    };
+    reader.readAsDataURL(f);
+  };
+
+  btnAddExtra.onclick = () => {
+    const n = (extraNome.value||"").trim();
+    const p = parseFloat(extraPreco.value) || 0;
+    if(!n) return alert("Nome vazio");
+    data.adicionais = data.adicionais || [];
+    data.adicionais.push({nome:n, preco:p});
+    extraNome.value = ""; extraPreco.value = "";
+    saveLocal(); renderExtras();
+  };
+
+  btnChangePass.onclick = () => {
+    const np = novaSenha.value || "";
+    if(!np) return alert("Digite a nova senha");
+    localStorage.setItem(LS_PASS, np);
+    novaSenha.value = "";
+    alert("Senha alterada");
+  };
+
+  // apply form fields to data object
+  function applyFormToData(){
+    data.config = data.config || {};
+    data.config.nomePizzaria = nomePizzaria.value || "";
+    data.config.whatsapp = (whatsapp.value || "").replace(/\D/g,'');
+    data.config.lojaAberta = lojaAberta.value === "true";
+    data.config.horario = horario.value || "";
+    data.config.pedidoMinimo = parseFloat(pedidoMinimo.value) || 0;
+    data.config.kmGratis = parseFloat(kmGratis.value) || 0;
+    data.config.valorKm = parseFloat(valorKm.value) || 0;
+    data.config.limiteKm = parseFloat(limiteKm.value) || 0;
+    data.config.tempoEntrega = tempoEntrega.value || "";
+    // meio a meio aviso persistido
+    data.config.meioAMeio = data.config.meioAMeio || {};
+    data.config.meioAMeio.aviso = mensagensAviso.value || "";
+  }
+
+  // UI show/hide
+  function showAdmin(){
+    loginSection.classList.add("hidden");
+    adminApp.classList.remove("hidden");
+    adminApp.removeAttribute("aria-hidden");
+    renderAll();
+  }
+  function hideAdmin(){
+    loginSection.classList.remove("hidden");
+    adminApp.classList.add("hidden");
+    adminApp.setAttribute("aria-hidden","true");
+  }
+
+  function renderAll(){
+    renderAdminTitle();
+    renderGeneral();
+    renderCategorias();
+    renderProdutosList();
+    renderExtras();
+    // ensure select for categories is updated
+    if(data.categorias.length && !prodCategoria.value) prodCategoria.value = data.categorias[0].nome;
+  }
+
+  // session check on load
+  (async ()=>{
+    await loadData();
+    const logged = !!localStorage.getItem(LS_SESSION);
+    if(logged) showAdmin();
+    else hideAdmin();
+  })();
+
+  // react to outside updates
+  window.addEventListener("storage", (e) => {
+    if(e.key === "__appDataUpdatedAt" || e.key === LS_KEY){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        data = JSON.parse(raw);
+        renderAll();
+      }catch(e){}
+    }
+  });
+  window.addEventListener("appDataUpdated", () => {
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      data = JSON.parse(raw);
+      renderAll();
+    }catch(e){}
+  });
+
+  // keep admin form inputs live-bound (save on change)
+  [nomePizzaria, whatsapp, lojaAberta, horario, pedidoMinimo, kmGratis, valorKm, limiteKm, mensagensAviso, tempoEntrega]
+    .forEach(el => el.addEventListener("change", () => { applyFormToData(); saveLocal(); renderAll(); }));
+
+})();

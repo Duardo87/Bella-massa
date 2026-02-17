@@ -1,206 +1,116 @@
-* {
-  box-sizing: border-box;
+/* styles.css (mantido + pequenas classes usadas pelo admin) */
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif}
+body{background:#f4f6f5;color:#222}
+.top{background:linear-gradient(135deg,#0a7d45,#0fb36a);color:#fff;padding:16px}
+.logo{font-size:26px;font-weight:800}
+.status{display:flex;gap:10px;margin-top:6px;font-size:14px}
+.status .open{background:#e53935;padding:4px 10px;border-radius:20px;font-weight:700}
+.info{margin-top:6px;font-size:14px}
+.carousel{background:#fff;padding:12px;overflow-x:auto;white-space:nowrap}
+.carousel div{display:inline-block;background:#e53935;color:#fff;padding:16px;margin-right:10px;border-radius:12px;min-width:240px;font-weight:700;animation:pulse 2s infinite}
+.urgencia{background:#fff3cd;color:#856404;padding:10px;text-align:center;font-weight:700;font-size:14px}
+.categorias{display:flex;overflow-x:auto;background:#fff;padding:10px;gap:8px}
+.categorias button{background:#0a7d45;color:#fff;border:none;padding:10px 16px;border-radius:20px;font-weight:700}
+main{padding:12px}
+.produto{background:#fff;margin-bottom:14px;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.produto img{width:100%;height:180px;object-fit:cover}
+.produto .info{padding:12px}
+.produto h3{font-size:18px;font-weight:800}
+.produto p{font-size:14px;margin-top:6px;color:#555}
+.produto button{background:linear-gradient(135deg,#0a7d45,#0fb36a);color:#fff;border:none;width:100%;padding:14px;font-size:16px;font-weight:800}
+.btn-whats{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#25d366;color:#fff;padding:14px 22px;border-radius:50px;font-weight:800;text-decoration:none;animation:pulse 1.5s infinite;z-index:1000}
+.cart-btn{position:fixed;bottom:20px;right:20px;background:#e53935;color:#fff;padding:14px 20px;border-radius:50px;font-weight:800;z-index:1000}
+.cart{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:16px;transform:translateY(100%);transition:.3s;max-height:90vh;overflow-y:auto;z-index:999;border-radius:20px 20px 0 0}
+.cart.active{transform:translateY(0)}
+.resumo div{display:flex;justify-content:space-between;margin-top:6px;font-size:15px}
+.total-final{font-size:18px;font-weight:800;margin-top:10px}
+.cart button{margin-top:14px;background:linear-gradient(135deg,#0a7d45,#0fb36a);color:#fff;border:none;width:100%;padding:16px;font-size:18px;font-weight:900;border-radius:14px}
+.upsell{text-align:center;margin:10px 0;font-weight:700;color:#0a7d45}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;align-items:center;justify-content:center}
+.modal-content{background:#fff;width:92%;max-height:90vh;overflow-y:auto;border-radius:20px;padding:16px;position:relative}
+.close{position:absolute;right:16px;top:12px;font-size:24px;font-weight:900}
+.opcoes button,.sabores button,.extras button{padding:8px 12px;border-radius:20px;border:1px solid #ccc;background:#fff;font-weight:700}
+.opcoes button.active,.sabores button.active,.extras button.active{background:#0a7d45;color:#fff;border-color:#0a7d45}
+.sabores button.disabled{opacity:.4;pointer-events:none}
+.aviso.limite{color:#e53935;font-weight:700;display:none}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+
+/* pequenas classes úteis ao admin (reaproveitadas se admin usa o mesmo stylesheet) */
+.hidden{display:none}
+.small{padding:6px 8px;font-size:13px}
+.muted{color:#666;font-size:13px}
+.list{margin-top:8px}
+.list-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;border:1px solid #eee;margin-bottom:8px;background:#fafafa}
+.img-preview{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
+/* Destaque visual "Mais pedido" - primeiro produto */
+#produtos .produto:nth-child(1){
+  border:2px solid #ff9800;
+  position:relative;
 }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f6f6f6;
-  color: #111;
+#produtos .produto:nth-child(1)::before{
+  content:"⭐ MAIS PEDIDO";
+  position:absolute;
+  top:12px;
+  left:12px;
+  background:#ff9800;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  padding:6px 10px;
+  border-radius:20px;
+  z-index:2;
+}
+.produto .info p:last-child{
+  font-size:18px;
+  font-weight:900;
+  color:#0a7d45;
+}
+.produto button{
+  position:relative;
 }
 
-/* ===== TOPO ===== */
-.topbar {
-  background: #0f0f0f;
-  color: #fff;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
+.produto button::after{
+  content:"🔥 Últimas unidades hoje";
+  display:block;
+  font-size:11px;
+  font-weight:700;
+  opacity:.9;
+}
+.produto button{
+  transition:transform .08s ease, box-shadow .08s ease;
 }
 
-.topbar a {
-  color: #25d366;
-  text-decoration: none;
-  font-weight: 700;
+.produto button:active{
+  transform:scale(.97);
+  box-shadow:0 2px 6px rgba(0,0,0,.25) inset;
+}
+.produto button{
+  transition:transform .08s ease, box-shadow .08s ease;
 }
 
-/* ===== INFO LOJA ===== */
-.store-info {
-  background: #fff;
-  display: flex;
-  justify-content: space-between;
-  padding: 14px;
-  font-size: 14px;
-  border-bottom: 1px solid #eee;
+.produto button:active{
+  transform:scale(.97);
+  box-shadow:0 2px 6px rgba(0,0,0,.25) inset;
+}
+.btn-whats{
+  box-shadow:0 0 0 rgba(37,211,102,.7);
+  animation:ctaPulse 1.4s infinite;
 }
 
-.store-info div {
-  text-align: center;
+@keyframes ctaPulse{
+  0%{box-shadow:0 0 0 0 rgba(37,211,102,.7)}
+  70%{box-shadow:0 0 0 16px rgba(37,211,102,0)}
+  100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}
+}
+.total-final{
+  background:#f1fff6;
+  padding:12px;
+  border-radius:12px;
 }
 
-/* ===== HERO ===== */
-.hero {
-  position: relative;
-  height: 180px;
-  background: linear-gradient(180deg, #000, #1a1a1a);
-  display: flex;
-  align-items: center;
-  padding: 20px;
-}
-
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,.9));
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  color: #fff;
-}
-
-.hero-content h2 {
-  margin: 0 0 10px;
-  font-size: 22px;
-}
-
-.hero-content button {
-  background: #fff;
-  color: #000;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 20px;
-  font-weight: 700;
-}
-
-/* ===== CATEGORIAS ===== */
-.categories {
-  display: flex;
-  gap: 10px;
-  padding: 12px;
-  overflow-x: auto;
-}
-
-.categories button {
-  border: none;
-  padding: 10px 18px;
-  border-radius: 999px;
-  background: #eee;
-  font-weight: 600;
-}
-
-.categories button:hover {
-  background: #0f0f0f;
-  color: #fff;
-}
-
-/* ===== PRODUTOS ===== */
-.products {
-  padding: 12px;
-}
-
-.product-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.06);
-}
-
-.product-card img {
-  width: 100%;
-  border-radius: 14px;
-}
-
-.product-card h3 {
-  margin: 10px 0 4px;
-}
-
-.product-card p {
-  font-size: 14px;
-  color: #555;
-}
-
-.product-card strong {
-  font-size: 18px;
-}
-
-.product-card button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 14px;
-  border: none;
-  background: #0f0f0f;
-  color: #fff;
-  font-weight: 700;
-}
-
-/* ===== MODAL ===== */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-  display: flex;
-  align-items: flex-end;
-}
-
-.modal-content {
-  background: #fff;
-  width: 100%;
-  border-radius: 20px 20px 0 0;
-  padding: 16px;
-  max-height: 85vh;
-  overflow-y: auto;
-}
-
-.modal-content h3 {
-  margin-top: 0;
-}
-
-/* ===== CARRINHO ===== */
-.cart {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  padding: 16px;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -10px 30px rgba(0,0,0,.15);
-}
-
-.cart strong {
-  font-size: 20px;
-}
-
-.cart button {
-  background: #25d366;
-  border: none;
-  padding: 14px;
-  border-radius: 16px;
-  color: #fff;
-  font-weight: 800;
-}
-
-/* ===== BOTÃO FLUTUANTE ===== */
-.floating-cart {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #0f0f0f;
-  color: #fff;
-  border: none;
-  padding: 16px;
-  border-radius: 50%;
-  font-size: 20px;
-}
-
-/* ===== UTIL ===== */
-.hidden {
-  display: none;
+.total-final span:last-child{
+  font-size:24px;
+  font-weight:900;
+  color:#0a7d45;
 }
