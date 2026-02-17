@@ -22,20 +22,20 @@
       "nome": "Sabores tradicionais",
       "ativo": true
     },
-    {
+    { 
       "nome": "Sabor premium da casa",
       "ativo": true
     }
   ],
   "ofertas": [
     {
-      "nome": "🔥 Combo familia",
-      "descricao": "Pizza Grande + pizza pequena 6 fatias/doce + Refrigerante 1L",
-      "preco": 79,90
+      "nome": "🔥 Combo Campeão",
+      "descricao": "Pizza Grande + Refrigerante 2L",
+      "preco": 54.9
     },
     {
       "nome": "😍 Combo Casal",
-      "descricao": "Pizza Média + pizza brotinho doce + Refrigerante 1L ",
+      "descricao": "Pizza Média + Refrigerante 1,5L",
       "preco": 44.9
     }
   ],
