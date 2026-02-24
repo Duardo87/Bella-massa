@@ -27,18 +27,6 @@
       "ativo": true
     }
   ],
-  "ofertas": [
-    {
-      "nome": "🔥 Combo Campeão",
-      "descricao": "Pizza Grande + Refrigerante 2L",
-      "preco": 54.9
-    },
-    {
-      "nome": "😍 Combo Casal",
-      "descricao": "Pizza Média + Refrigerante 1,5L",
-      "preco": 44.9
-    }
-  ],
   "produtos": [
     {
       "nome": "🍕Calabresa",
@@ -175,22 +163,12 @@
       "preco": 2.9
     },
     {
-      "nome": "Guaraná kuat 2L",
+      "nome": "Guaraná1L",
       "preco": 9.9
     },
     {
       "nome": "Coca-cola 2L",
       "preco": 15.9
-    }
-  ],
-  "bebidas": [
-    {
-      "nome": "Coca-Cola 2L",
-      "preco": 12
-    },
-    {
-      "nome": "Guaraná 1,5L",
-      "preco": 10
     }
   ],
   "promocoes": [
